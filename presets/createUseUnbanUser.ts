@@ -1,7 +1,8 @@
 import { withUseMutationDefaults } from "soda-tanstack-query"
-import { toast } from "sonner"
 
 import type { unbanUser } from "@/shared/unbanUser"
+
+import { toast } from "@/utils/toast"
 
 export const createUseUnbanUser = withUseMutationDefaults<typeof unbanUser>(() => ({
     onMutate(variables, context) {},

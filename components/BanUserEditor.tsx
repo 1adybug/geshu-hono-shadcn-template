@@ -4,7 +4,6 @@ import { type FC, useEffect } from "react"
 
 import { useForm } from "@tanstack/react-form"
 import { LoaderCircleIcon } from "lucide-react"
-import { toast } from "sonner"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -20,6 +19,7 @@ import { banUserParser } from "@/schemas/banUser"
 
 import { getDateTime } from "@/utils/formatDateTime"
 import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
+import { toast } from "@/utils/toast"
 
 const banUserFormSchema = z.object({
     banReason: banReasonSchema,

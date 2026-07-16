@@ -1,9 +1,10 @@
 import { useId } from "react"
 
 import { withUseMutationDefaults } from "soda-tanstack-query"
-import { toast } from "sonner"
 
 import type { createFirstUser } from "@/shared/createFirstUser"
+
+import { toast } from "@/utils/toast"
 
 export const createUseCreateFirstUser = withUseMutationDefaults<typeof createFirstUser>(() => {
     const key = useId()

@@ -5,11 +5,11 @@ import { type ComponentProps, type FC, useId, useState } from "react"
 import { getErrorMessage } from "deepsea-tools"
 import { LoaderCircleIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 
 import { authClient } from "@/utils/authClient"
+import { toast } from "@/utils/toast"
 
 export interface LogoutProps extends ComponentProps<typeof Button> {}
 

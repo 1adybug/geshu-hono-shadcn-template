@@ -6,7 +6,6 @@ import { useForm } from "@tanstack/react-form"
 import { getErrorMessage } from "deepsea-tools"
 import { LoaderCircleIcon } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,6 +24,7 @@ import { otpSchema } from "@/schemas/otp"
 
 import { authClient } from "@/utils/authClient"
 import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
+import { toast } from "@/utils/toast"
 
 const OAuthLoginErrorMessage = {
     signup_disabled: "当前手机号还不能登录本系统，请联系管理员先为你开通账号。",

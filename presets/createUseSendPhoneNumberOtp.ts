@@ -1,7 +1,8 @@
 import { withUseMutationDefaults } from "soda-tanstack-query"
-import { toast } from "sonner"
 
 import type { sendPhoneNumberOtp } from "@/shared/sendPhoneNumberOtp"
+
+import { toast } from "@/utils/toast"
 
 export const createUseSendPhoneNumberOtp = withUseMutationDefaults<typeof sendPhoneNumberOtp>(() => ({
     onMutate(variables, context) {},

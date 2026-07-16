@@ -1,9 +1,10 @@
 import { useId } from "react"
 
 import { withUseMutationDefaults } from "soda-tanstack-query"
-import { toast } from "sonner"
 
 import type { updateSystemSettings } from "@/shared/updateSystemSettings"
+
+import { toast } from "@/utils/toast"
 
 export const createUseUpdateSystemSettings = withUseMutationDefaults<typeof updateSystemSettings>(() => {
     const key = useId()

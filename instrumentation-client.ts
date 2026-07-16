@@ -1,6 +1,7 @@
 import { createRequestFn, flattenZodError, getErrorMessage, isZodError } from "deepsea-tools"
 import { isRedirectError } from "next/dist/client/components/redirect-error"
-import { toast } from "sonner"
+
+import { toast } from "@/utils/toast"
 
 createRequestFn.use(async (context, next) => {
     try {

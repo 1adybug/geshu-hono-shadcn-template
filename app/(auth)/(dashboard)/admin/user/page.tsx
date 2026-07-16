@@ -9,7 +9,6 @@ import { getEnumKey, naturalParser } from "deepsea-tools"
 import { DownloadIcon, FileSpreadsheetIcon, LoaderCircleIcon, PlusIcon, UploadIcon } from "lucide-react"
 import type { DateRange } from "react-day-picker"
 import { useQueryState } from "soda-next"
-import { toast } from "sonner"
 import { z } from "zod"
 
 import { BanUserEditor } from "@/components/BanUserEditor"
@@ -40,6 +39,7 @@ import { type UserSortByParams, userSortBySchema } from "@/schemas/userSortBy"
 import type { ImportUserResult } from "@/shared/importUser"
 
 import { formatDateTime } from "@/utils/formatDateTime"
+import { toast } from "@/utils/toast"
 
 interface ActionResponse<T = unknown> {
     success: boolean

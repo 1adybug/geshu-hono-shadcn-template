@@ -4,7 +4,8 @@ import type { FC, ReactNode } from "react"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/Toaster"
+
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 import { ThemeProvider } from "./ThemeProvider"
@@ -30,21 +31,7 @@ export const Registry: FC<RegistryProps> = ({ children }) => (
         <QueryClientProvider client={queryClient}>
             <TooltipProvider>
                 {children}
-                <Toaster
-                    mobileOffset={{ top: 16, right: 0, bottom: 16, left: 0 }}
-                    toastOptions={{
-                        classNames: { toast: "cn-toast" },
-                        style: {
-                            right: "auto",
-                            left: "50%",
-                            width: "fit-content",
-                            maxWidth: "calc(100vw - 2rem)",
-                            translate: "-50% 0",
-                        },
-                    }}
-                    richColors
-                    position="top-center"
-                />
+                <Toaster />
             </TooltipProvider>
         </QueryClientProvider>
     </ThemeProvider>
