@@ -19,6 +19,7 @@ import { banReasonSchema } from "@/schemas/banReason"
 import { banUserParser } from "@/schemas/banUser"
 
 import { getDateTime } from "@/utils/formatDateTime"
+import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
 
 const banUserFormSchema = z.object({
     banReason: banReasonSchema,
@@ -99,7 +100,7 @@ export const BanUserEditor: FC<BanUserEditorProps> = ({ id, open = false, onClos
                     }}
                 >
                     <FieldGroup>
-                        <form.Field name="banReason" validators={{ onBlur: banReasonSchema }}>
+                        <form.Field name="banReason" validators={{ onBlur: getOnBlurValidator(banReasonSchema) }}>
                             {field => {
                                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                 return (

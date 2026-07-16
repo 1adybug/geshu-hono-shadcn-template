@@ -22,6 +22,8 @@ import { useUpdateSystemSettings } from "@/hooks/useUpdateSystemSettings"
 
 import { updateSystemSettingsParser } from "@/schemas/updateSystemSettings"
 
+import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
+
 export interface SystemSettingFormData {
     [key: string]: string | number | boolean | undefined
 }
@@ -173,7 +175,7 @@ export const SystemSettingForm: FC<SystemSettingFormProps> = ({ className, ...re
                             </CardHeader>
                             <CardContent className="space-y-5">
                                 {group.settings.map(setting => (
-                                    <form.Field key={setting.key} name={setting.key} validators={{ onBlur: systemSettingFormValueSchema }}>
+                                    <form.Field key={setting.key} name={setting.key} validators={{ onBlur: getOnBlurValidator(systemSettingFormValueSchema) }}>
                                         {field => {
                                             const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 

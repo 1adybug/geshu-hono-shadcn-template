@@ -22,6 +22,8 @@ import { otpSchema } from "@/schemas/otp"
 import { phoneNumberParser, phoneNumberSchema } from "@/schemas/phoneNumber"
 import { updateCurrentUserProfileParser } from "@/schemas/updateCurrentUserProfile"
 
+import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
+
 const phoneNumberEditorSchema = z.object({
     phoneNumber: phoneNumberSchema,
     oldOtp: otpSchema,
@@ -152,7 +154,7 @@ export const CurrentUserPhoneNumberEditor: FC<CurrentUserPhoneNumberEditorProps>
                     }}
                 >
                     <FieldGroup>
-                        <form.Field name="phoneNumber" validators={{ onBlur: phoneNumberSchema }}>
+                        <form.Field name="phoneNumber" validators={{ onBlur: getOnBlurValidator(phoneNumberSchema) }}>
                             {field => {
                                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
@@ -174,7 +176,7 @@ export const CurrentUserPhoneNumberEditor: FC<CurrentUserPhoneNumberEditorProps>
                             }}
                         </form.Field>
                         <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-                            <form.Field name="oldOtp" validators={{ onBlur: otpSchema }}>
+                            <form.Field name="oldOtp" validators={{ onBlur: getOnBlurValidator(otpSchema) }}>
                                 {field => {
                                     const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                     return (
@@ -208,7 +210,7 @@ export const CurrentUserPhoneNumberEditor: FC<CurrentUserPhoneNumberEditorProps>
                             </Button>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-                            <form.Field name="newOtp" validators={{ onBlur: otpSchema }}>
+                            <form.Field name="newOtp" validators={{ onBlur: getOnBlurValidator(otpSchema) }}>
                                 {field => {
                                     const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                     return (

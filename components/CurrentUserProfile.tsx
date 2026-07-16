@@ -37,6 +37,7 @@ import { updateCurrentUserProfileParser } from "@/schemas/updateCurrentUserProfi
 import { UserRole } from "@/schemas/userRole"
 
 import { formatDateTime } from "@/utils/formatDateTime"
+import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
 
 import { CurrentUserPhoneNumberEditor } from "./CurrentUserPhoneNumberEditor"
 
@@ -206,7 +207,7 @@ export const CurrentUserProfile: FC<CurrentUserProfileProps> = ({ className, dat
                                         void nicknameForm.handleSubmit()
                                     }}
                                 >
-                                    <nicknameForm.Field name="nickname" validators={{ onBlur: nicknameSchema }}>
+                                    <nicknameForm.Field name="nickname" validators={{ onBlur: getOnBlurValidator(nicknameSchema) }}>
                                         {field => {
                                             const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
 

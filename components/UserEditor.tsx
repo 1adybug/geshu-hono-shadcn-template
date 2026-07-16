@@ -23,6 +23,8 @@ import { updateUserParser } from "@/schemas/updateUser"
 import { usernameSchema } from "@/schemas/username"
 import { type UserRoleParams, UserRole, UserRoleSchema } from "@/schemas/userRole"
 
+import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
+
 export interface UserEditorProps {
     id?: string
     open?: boolean
@@ -99,7 +101,7 @@ export const UserEditor: FC<UserEditorProps> = ({ id, open = false, onClose }) =
                     }}
                 >
                     <FieldGroup>
-                        <form.Field name="name" validators={{ onBlur: usernameSchema }}>
+                        <form.Field name="name" validators={{ onBlur: getOnBlurValidator(usernameSchema) }}>
                             {field => {
                                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
@@ -120,7 +122,7 @@ export const UserEditor: FC<UserEditorProps> = ({ id, open = false, onClose }) =
                                 )
                             }}
                         </form.Field>
-                        <form.Field name="nickname" validators={{ onBlur: nicknameSchema }}>
+                        <form.Field name="nickname" validators={{ onBlur: getOnBlurValidator(nicknameSchema) }}>
                             {field => {
                                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
@@ -141,7 +143,7 @@ export const UserEditor: FC<UserEditorProps> = ({ id, open = false, onClose }) =
                                 )
                             }}
                         </form.Field>
-                        <form.Field name="phoneNumber" validators={{ onBlur: phoneNumberSchema }}>
+                        <form.Field name="phoneNumber" validators={{ onBlur: getOnBlurValidator(phoneNumberSchema) }}>
                             {field => {
                                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
@@ -162,7 +164,7 @@ export const UserEditor: FC<UserEditorProps> = ({ id, open = false, onClose }) =
                                 )
                             }}
                         </form.Field>
-                        <form.Field name="role" validators={{ onBlur: UserRoleSchema }}>
+                        <form.Field name="role" validators={{ onBlur: getOnBlurValidator(UserRoleSchema) }}>
                             {field => {
                                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                 return (

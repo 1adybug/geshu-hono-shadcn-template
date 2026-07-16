@@ -18,6 +18,8 @@ import { nicknameSchema } from "@/schemas/nickname"
 import { phoneNumberSchema } from "@/schemas/phoneNumber"
 import { usernameSchema } from "@/schemas/username"
 
+import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
+
 const fields = [
     { name: "name", label: "用户名", autoComplete: "username", schema: usernameSchema },
     { name: "nickname", label: "昵称", autoComplete: "nickname", schema: nicknameSchema },
@@ -64,7 +66,7 @@ const Page: FC = () => {
                 >
                     <FieldGroup>
                         {fields.map(({ name, label, autoComplete, schema }) => (
-                            <form.Field key={name} name={name} validators={{ onBlur: schema }}>
+                            <form.Field key={name} name={name} validators={{ onBlur: getOnBlurValidator(schema) }}>
                                 {field => {
                                     const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                     return (

@@ -24,6 +24,7 @@ import { loginParser, loginSchema } from "@/schemas/login"
 import { otpSchema } from "@/schemas/otp"
 
 import { authClient } from "@/utils/authClient"
+import { getOnBlurValidator } from "@/utils/getOnBlurValidator"
 
 const OAuthLoginErrorMessage = {
     signup_disabled: "当前手机号还不能登录本系统，请联系管理员先为你开通账号。",
@@ -153,7 +154,7 @@ const Page: FC = () => {
                     }}
                 >
                     <FieldGroup>
-                        <form.Field name="account" validators={{ onBlur: accountSchema }}>
+                        <form.Field name="account" validators={{ onBlur: getOnBlurValidator(accountSchema) }}>
                             {field => {
                                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                 return (
@@ -174,7 +175,7 @@ const Page: FC = () => {
                             }}
                         </form.Field>
                         <div className="flex items-start gap-2">
-                            <form.Field name="otp" validators={{ onBlur: otpSchema }}>
+                            <form.Field name="otp" validators={{ onBlur: getOnBlurValidator(otpSchema) }}>
                                 {field => {
                                     const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
                                     return (
