@@ -12,7 +12,7 @@ export interface LayoutProps {
 const Layout: FC<LayoutProps> = ({ children }) => (
     <SidebarProvider className="h-dvh min-h-0 overflow-hidden">
         <DashboardSidebar />
-        <SidebarInset className="bg-muted/30 min-h-0 overflow-hidden">
+        <SidebarInset className="bg-muted/30 min-h-0 min-w-0 overflow-hidden">
             <header className="bg-background flex h-14 flex-none items-center gap-2 border-b px-3 md:hidden">
                 <SidebarTrigger />
                 <div className="min-w-0 flex-auto truncate text-sm font-semibold">格数科技项目模板</div>

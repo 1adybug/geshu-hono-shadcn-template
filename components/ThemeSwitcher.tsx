@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export interface ThemeSwitcherProps extends ComponentProps<typeof Button> {}
 
-export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ variant = "ghost", size = "icon", ...rest }) => {
+export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ type = "button", variant = "ghost", size = "icon", ...rest }) => {
     const { resolvedTheme, setTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
 
@@ -20,7 +20,7 @@ export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ variant = "ghost", size 
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant={variant} size={size} disabled={!mounted} {...rest} />}>
+            <DropdownMenuTrigger render={<Button type={type} variant={variant} size={size} disabled={!mounted} {...rest} />}>
                 <ThemeIcon />
                 <span className="sr-only">切换主题</span>
             </DropdownMenuTrigger>
