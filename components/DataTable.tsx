@@ -146,6 +146,7 @@ export function DataTable<TData extends RowData>({
         columns,
         data,
         defaultColumn: {
+            enableSorting: false,
             maxSize: 640,
             minSize: 72,
         },
