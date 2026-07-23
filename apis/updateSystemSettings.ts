@@ -5,5 +5,5 @@ import type { updateSystemSettings as sharedUpdateSystemSettings } from "@/share
 import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function updateSystemSettings(params: UpdateSystemSettingsParams) {
-    return parseApiResponse<Awaited<ReturnType<typeof sharedUpdateSystemSettings>>>(rpcClient.api.action.updateSystemSettings.$post({ json: params }))
+    return parseApiResponse<Awaited<ReturnType<typeof sharedUpdateSystemSettings>>>(rpcClient.api["update-system-settings"].$post({ json: params }))
 }

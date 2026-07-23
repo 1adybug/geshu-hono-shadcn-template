@@ -3,5 +3,5 @@ import type { getCurrentUser as sharedGetCurrentUser } from "@/shared/getCurrent
 import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function getCurrentUser() {
-    return parseApiResponse<Awaited<ReturnType<typeof sharedGetCurrentUser>>>(rpcClient.api["current-user"].$get())
+    return parseApiResponse<Awaited<ReturnType<typeof sharedGetCurrentUser>>>(rpcClient.api["get-current-user"].$get())
 }

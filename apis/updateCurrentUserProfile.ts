@@ -5,5 +5,5 @@ import type { updateCurrentUserProfile as sharedUpdateCurrentUserProfile } from 
 import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function updateCurrentUserProfile(params: UpdateCurrentUserProfileParams) {
-    return parseApiResponse<Awaited<ReturnType<typeof sharedUpdateCurrentUserProfile>>>(rpcClient.api.action.updateCurrentUserProfile.$post({ json: params }))
+    return parseApiResponse<Awaited<ReturnType<typeof sharedUpdateCurrentUserProfile>>>(rpcClient.api["update-current-user-profile"].$post({ json: params }))
 }

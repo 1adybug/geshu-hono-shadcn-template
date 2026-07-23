@@ -5,5 +5,5 @@ import type { sendPhoneNumberOtp as sharedSendPhoneNumberOtp } from "@/shared/se
 import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function sendPhoneNumberOtp(params: AccountParams) {
-    return parseApiResponse<Awaited<ReturnType<typeof sharedSendPhoneNumberOtp>>>(rpcClient.api.action.sendPhoneNumberOtp.$post({ json: params }))
+    return parseApiResponse<Awaited<ReturnType<typeof sharedSendPhoneNumberOtp>>>(rpcClient.api["send-phone-number-otp"].$post({ json: params }))
 }

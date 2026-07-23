@@ -69,7 +69,7 @@ try {
     assert.equal(notFoundResponse.status, 404)
     assert.equal((await readEnvelope(notFoundResponse)).code, 404)
 
-    const invalidResponse = await app.request("/api/action/addUser", {
+    const invalidResponse = await app.request("/api/add-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -77,7 +77,7 @@ try {
     assert.equal(invalidResponse.status, 400)
     assert.equal((await readEnvelope(invalidResponse)).code, 400)
 
-    const unauthorizedResponse = await app.request("/api/action/queryUser", {
+    const unauthorizedResponse = await app.request("/api/query-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -87,7 +87,7 @@ try {
 
     const crossOriginForm = new FormData()
     crossOriginForm.set("file", new File(["invalid"], "users.xlsx"))
-    const csrfResponse = await app.request("/api/admin/user/import", {
+    const csrfResponse = await app.request("/api/import-user", {
         method: "POST",
         headers: { Origin: "https://untrusted.example" },
         body: crossOriginForm,
@@ -95,7 +95,7 @@ try {
     assert.equal(csrfResponse.status, 403)
     assert.equal((await readEnvelope(csrfResponse)).code, 403)
 
-    const sameOriginResponse = await app.request("/api/admin/user/import", {
+    const sameOriginResponse = await app.request("/api/import-user", {
         method: "POST",
         headers: { Origin: "http://localhost" },
         body: new FormData(),
@@ -112,7 +112,7 @@ try {
     })
     assert.notEqual(await betterAuthResponse.text(), "Forbidden")
 
-    const createResponse = await app.request("/api/action/createFirstUser", {
+    const createResponse = await app.request("/api/create-first-user", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -130,7 +130,7 @@ try {
     assert.equal(createEnvelope.success, true)
     const createdUser = createEnvelope.data as UserIdentifier
 
-    const loginResponse = await app.request("/api/action/login", {
+    const loginResponse = await app.request("/api/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -144,13 +144,13 @@ try {
     assert.equal(loginResponse.status, 200)
     const cookie = getCookieHeader(loginResponse)
 
-    const currentUserResponse = await app.request("/api/current-user", {
+    const currentUserResponse = await app.request("/api/get-current-user", {
         headers: { Cookie: cookie },
     })
     assert.equal(currentUserResponse.status, 200)
     assert.equal(((await readEnvelope(currentUserResponse)).data as CurrentUserEnvelopeData).user?.id, createdUser.id)
 
-    const dateQueryResponse = await app.request("/api/action/queryUser", {
+    const dateQueryResponse = await app.request("/api/query-user", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -162,7 +162,7 @@ try {
     })
     assert.equal(dateQueryResponse.status, 200)
 
-    const templateResponse = await app.request("/api/admin/user/template", {
+    const templateResponse = await app.request("/api/get-user-import-template", {
         headers: { Cookie: cookie },
     })
     assert.equal(templateResponse.status, 200)
@@ -185,7 +185,7 @@ try {
     const importForm = new FormData()
     importForm.set("file", new File([toResponseBody(importWorkbookData)], "users.xlsx"))
 
-    const importResponse = await app.request("/api/admin/user/import", {
+    const importResponse = await app.request("/api/import-user", {
         method: "POST",
         headers: {
             Cookie: cookie,
@@ -196,7 +196,7 @@ try {
     assert.equal(importResponse.status, 200)
     assert.equal(((await readEnvelope(importResponse)).data as ImportResultData).total, 1)
 
-    const exportResponse = await app.request("/api/admin/user/export", {
+    const exportResponse = await app.request("/api/export-user", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -219,21 +219,21 @@ try {
 
     rateLimit.setGlobalRateLimitEnabled(true)
 
-    const firstIpResponse = await app.request("/api/action/queryGeshuOAuthLoginStatus", {
+    const firstIpResponse = await app.request("/api/query-geshu-oauth-login-status", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "X-Forwarded-For": "203.0.113.1",
         },
     })
-    const secondIpResponse = await app.request("/api/action/queryGeshuOAuthLoginStatus", {
+    const secondIpResponse = await app.request("/api/query-geshu-oauth-login-status", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "X-Forwarded-For": "203.0.113.2",
         },
     })
-    const limitedResponse = await app.request("/api/action/queryGeshuOAuthLoginStatus", {
+    const limitedResponse = await app.request("/api/query-geshu-oauth-login-status", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -252,7 +252,7 @@ try {
     updateDatabase.prepare('UPDATE "user" SET "role" = ? WHERE "id" = ?').run("user", createdUser.id)
     updateDatabase.close()
 
-    const forbiddenResponse = await app.request("/api/action/queryUser", {
+    const forbiddenResponse = await app.request("/api/query-user", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -265,7 +265,7 @@ try {
 
     new Database(databasePath).exec('DROP TABLE "user"').close()
 
-    const serverErrorResponse = await app.request("/api/initialization")
+    const serverErrorResponse = await app.request("/api/get-initialization-status")
     assert.equal(serverErrorResponse.status, 500)
     assert.equal((await readEnvelope(serverErrorResponse)).code, 500)
 

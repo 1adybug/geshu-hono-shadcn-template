@@ -5,5 +5,5 @@ import type { queryUser as sharedQueryUser } from "@/shared/queryUser"
 import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function queryUser(params: QueryUserParams) {
-    return parseApiResponse<Awaited<ReturnType<typeof sharedQueryUser>>>(rpcClient.api.action.queryUser.$post({ json: params }))
+    return parseApiResponse<Awaited<ReturnType<typeof sharedQueryUser>>>(rpcClient.api["query-user"].$post({ json: params }))
 }

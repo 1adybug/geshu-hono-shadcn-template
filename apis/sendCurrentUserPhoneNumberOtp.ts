@@ -6,6 +6,6 @@ import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function sendCurrentUserPhoneNumberOtp(params: SendCurrentUserPhoneNumberOtpParams) {
     return parseApiResponse<Awaited<ReturnType<typeof sharedSendCurrentUserPhoneNumberOtp>>>(
-        rpcClient.api.action.sendCurrentUserPhoneNumberOtp.$post({ json: params }),
+        rpcClient.api["send-current-user-phone-number-otp"].$post({ json: params }),
     )
 }

@@ -5,5 +5,5 @@ import type { login as sharedLogin } from "@/shared/login"
 import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function login(params: LoginParams) {
-    return parseApiResponse<Awaited<ReturnType<typeof sharedLogin>>["user"]>(rpcClient.api.action.login.$post({ json: params }))
+    return parseApiResponse<Awaited<ReturnType<typeof sharedLogin>>["user"]>(rpcClient.api["login"].$post({ json: params }))
 }

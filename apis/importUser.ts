@@ -5,5 +5,5 @@ import type { importUser as sharedImportUser } from "@/shared/importUser"
 import { parseApiResponse, rpcClient } from "@/utils/rpcClient"
 
 export function importUser(params: ImportUserParams) {
-    return parseApiResponse<Awaited<ReturnType<typeof sharedImportUser>>>(rpcClient.api.admin.user.import.$post({ form: params }))
+    return parseApiResponse<Awaited<ReturnType<typeof sharedImportUser>>>(rpcClient.api["import-user"].$post({ form: params }))
 }
