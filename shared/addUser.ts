@@ -1,26 +1,19 @@
 import { prisma } from "@/prisma"
 
-import { addUserSchema } from "@/schemas/addUser"
+import type { AddUserParams } from "@/schemas/addUser"
 
 import { auth } from "@/server/auth"
-import { createSharedFn } from "@/server/createSharedFn"
 import { getRandomPassword } from "@/server/getRandomPassword"
 import { getTempEmail } from "@/server/getTempEmail"
-import { isAdmin } from "@/server/isAdmin"
+import { badRequest } from "@/server/httpError"
 
-import { ClientError } from "@/utils/clientError"
-
-export const addUser = createSharedFn({
-    name: "addUser",
-    schema: addUserSchema,
-    filter: isAdmin,
-})(async function addUser({ name, nickname, phoneNumber, role }) {
+export async function addUser({ name, nickname, phoneNumber, role }: AddUserParams) {
     const phoneNumberCount = await prisma.user.count({ where: { phoneNumber } })
-    if (phoneNumberCount > 0) throw new ClientError("手机号已被注册")
+    if (phoneNumberCount > 0) throw badRequest("手机号已被注册")
 
     const email = getTempEmail(phoneNumber)
     const emailCount = await prisma.user.count({ where: { email: email } })
-    if (emailCount > 0) throw new ClientError("邮箱已被注册")
+    if (emailCount > 0) throw badRequest("邮箱已被注册")
 
     try {
         const { user } = await auth.api.createUser({
@@ -39,9 +32,6 @@ export const addUser = createSharedFn({
         const user2 = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
         return user2
     } catch (error) {
-        throw new ClientError({
-            message: "新增用户失败",
-            origin: error,
-        })
+        throw badRequest("新增用户失败", error)
     }
-})
+}

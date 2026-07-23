@@ -1,6 +1,7 @@
-import { headers } from "next/headers"
+import { tryGetContext } from "hono/context-storage"
 
-export async function getUserAgent() {
-    const headersList = await headers()
-    return headersList.get("user-agent")!
+import type { AppEnv } from "./hono"
+
+export function getUserAgent() {
+    return tryGetContext<AppEnv>()?.req.header("user-agent")
 }

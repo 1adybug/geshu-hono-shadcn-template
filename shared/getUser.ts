@@ -1,18 +1,11 @@
 import { prisma } from "@/prisma"
 
-import { userIdSchema } from "@/schemas/userId"
+import type { UserIdParams } from "@/schemas/userId"
 
-import { createSharedFn } from "@/server/createSharedFn"
-import { isAdmin } from "@/server/isAdmin"
+import { badRequest } from "@/server/httpError"
 
-import { ClientError } from "@/utils/clientError"
-
-export const getUser = createSharedFn({
-    name: "getUser",
-    schema: userIdSchema,
-    filter: isAdmin,
-})(async function getUser(id) {
+export async function getUser(id: UserIdParams) {
     const user = await prisma.user.findUnique({ where: { id } })
-    if (!user) throw new ClientError("用户不存在")
+    if (!user) throw badRequest("用户不存在")
     return user
-})
+}

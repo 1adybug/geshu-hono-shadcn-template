@@ -2,7 +2,7 @@ import type { ComponentProps, FC } from "react"
 
 import { clsx } from "deepsea-tools"
 import { ArrowLeftIcon } from "lucide-react"
-import Link from "next/link"
+import { Link } from "react-router"
 
 import { Brand } from "@/components/Brand"
 import { ThemeSwitcher } from "@/components/ThemeSwitcher"
@@ -28,7 +28,7 @@ export const ErrorPage: FC<ErrorPageProps> = ({ code, title, description, href, 
                     <div className="text-primary text-sm font-medium">错误代码 {code}</div>
                     <h1 className="mt-4 text-5xl font-semibold tracking-tight sm:text-6xl">{title}</h1>
                     <p className="text-muted-foreground mt-6 max-w-lg text-lg leading-8">{description}</p>
-                    <Link className="text-primary mt-8 inline-flex items-center gap-2 text-sm font-medium hover:underline" href={href}>
+                    <Link className="text-primary mt-8 inline-flex items-center gap-2 text-sm font-medium hover:underline" to={href}>
                         <ArrowLeftIcon className="size-4" />
                         {link}
                     </Link>

@@ -1,15 +1,13 @@
-import type { FC, ReactNode } from "react"
+import type { FC } from "react"
+
+import { Outlet } from "react-router"
 
 import { DashboardSidebar } from "@/components/DashboardSidebar"
 import { ThemeSwitcher } from "@/components/ThemeSwitcher"
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
-export interface LayoutProps {
-    children?: ReactNode
-}
-
-const Layout: FC<LayoutProps> = ({ children }) => (
+const Layout: FC = () => (
     <SidebarProvider className="h-dvh min-h-0 overflow-hidden">
         <DashboardSidebar />
         <SidebarInset className="bg-muted/30 min-h-0 min-w-0 overflow-hidden">
@@ -19,7 +17,9 @@ const Layout: FC<LayoutProps> = ({ children }) => (
                 <ThemeSwitcher size="icon-sm" />
             </header>
             <main className="min-h-0 flex-auto overflow-auto">
-                <div className="mx-auto min-h-full w-full max-w-[1600px] p-4 sm:p-6">{children}</div>
+                <div className="mx-auto min-h-full w-full max-w-[1600px] p-4 sm:p-6">
+                    <Outlet />
+                </div>
             </main>
         </SidebarInset>
     </SidebarProvider>

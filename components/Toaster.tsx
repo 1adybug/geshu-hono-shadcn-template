@@ -1,5 +1,3 @@
-"use client"
-
 import type { FC } from "react"
 
 import { CircleCheckIcon, CircleXIcon, LoaderCircleIcon, XIcon } from "lucide-react"

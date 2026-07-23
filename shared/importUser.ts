@@ -1,17 +1,13 @@
 import { prisma } from "@/prisma"
 
 import type { AddUserParams } from "@/schemas/addUser"
-import { importUserSchema } from "@/schemas/importUser"
+import type { ImportUserParams } from "@/schemas/importUser"
 
 import { auth } from "@/server/auth"
-import { createRateLimit } from "@/server/createRateLimit"
-import { createSharedFn } from "@/server/createSharedFn"
 import { getRandomPassword } from "@/server/getRandomPassword"
 import { getTempEmail } from "@/server/getTempEmail"
-import { isAdmin } from "@/server/isAdmin"
+import { badRequest } from "@/server/httpError"
 import { type UserImportWorkbookResultRow, type UserImportWorkbookRow, createUserImportResultWorkbook, parseUserImportWorkbook } from "@/server/userWorkbook"
-
-import { ClientError } from "@/utils/clientError"
 
 const XlsxFilenamePattern = /\.xlsx$/i
 
@@ -31,14 +27,8 @@ interface ImportUserRowContext {
     existingPhoneNumbers: Set<string>
 }
 
-function getImportFile(formData: FormData) {
-    const file = formData.get("file")
-    if (!(file instanceof File)) throw new ClientError("请选择 xlsx 文件")
-    return file
-}
-
 function assertXlsxFile(file: File) {
-    if (!XlsxFilenamePattern.test(file.name)) throw new ClientError("请上传 xlsx 文件")
+    if (!XlsxFilenamePattern.test(file.name)) throw badRequest("请上传 xlsx 文件")
 }
 
 function getDuplicateValues<T>(values: T[]) {
@@ -191,21 +181,11 @@ function getImportUserResult(rows: UserImportWorkbookResultRow[]): ImportUserRes
     }
 }
 
-export const importUser = createSharedFn({
-    name: "importUser",
-    schema: importUserSchema,
-    filter: isAdmin,
-    rateLimit: createRateLimit({
-        limit: 5,
-        windowMs: 60_000,
-        message: "批量导入用户操作过于频繁，请稍后再试",
-    }),
-})(async function importUser(formData): Promise<ImportUserResult> {
-    const file = getImportFile(formData)
+export async function importUser({ file }: ImportUserParams): Promise<ImportUserResult> {
     assertXlsxFile(file)
 
     const rows = parseUserImportWorkbook(new Uint8Array(await file.arrayBuffer()))
-    if (rows.length === 0) throw new ClientError("导入文件没有用户数据")
+    if (rows.length === 0) throw badRequest("导入文件没有用户数据")
 
     const context = await getImportUserRowContext(getValidImportParams(rows))
 
@@ -214,4 +194,4 @@ export const importUser = createSharedFn({
     for (const row of rows) resultRows.push(await importUserRow(row, context))
 
     return getImportUserResult(resultRows)
-})
+}

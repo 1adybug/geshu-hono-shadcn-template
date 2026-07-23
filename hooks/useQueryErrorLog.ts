@@ -1,11 +1,10 @@
-import { createRequestFn } from "deepsea-tools"
 import { createUseQuery } from "soda-tanstack-query"
 
-import { queryErrorLogAction } from "@/actions/queryErrorLog"
+import { queryErrorLog } from "@/apis/queryErrorLog"
 
-export const queryErrorLogClient = createRequestFn(queryErrorLogAction)
+export { queryErrorLog }
 
 export const useQueryErrorLog = createUseQuery({
-    queryFn: queryErrorLogClient,
+    queryFn: queryErrorLog,
     queryKey: "query-error-log",
 })

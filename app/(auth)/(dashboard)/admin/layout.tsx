@@ -1,19 +1,15 @@
-import type { FC, ReactNode } from "react"
+import type { FC } from "react"
 
-import { redirect } from "next/navigation"
+import { Navigate, Outlet } from "react-router"
+
+import { useUser } from "@/components/UserProvider"
 
 import { UserRole } from "@/schemas/userRole"
 
-import { getCurrentUser } from "@/server/getCurrentUser"
-
-export interface LayoutProps {
-    children?: ReactNode
-}
-
-const Layout: FC<LayoutProps> = async ({ children }) => {
-    const user = await getCurrentUser()
-    if (user?.role !== UserRole.管理员) return redirect("/")
-    return children
+const Layout: FC = () => {
+    const user = useUser()
+    if (user?.role !== UserRole.管理员) return <Navigate to="/" replace />
+    return <Outlet />
 }
 
 export default Layout

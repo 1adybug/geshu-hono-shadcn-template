@@ -7,16 +7,9 @@ import type { ErrorLogOrderByWithRelationInput } from "@/prisma/generated/intern
 
 import { defaultPageNum } from "@/schemas/pageNum"
 import { defaultPageSize } from "@/schemas/pageSize"
-import { queryErrorLogSchema } from "@/schemas/queryErrorLog"
+import type { QueryErrorLogParams } from "@/schemas/queryErrorLog"
 
-import { createSharedFn } from "@/server/createSharedFn"
-import { isAdmin } from "@/server/isAdmin"
-
-export const queryErrorLog = createSharedFn({
-    name: "queryErrorLog",
-    schema: queryErrorLogSchema,
-    filter: isAdmin,
-})(async function queryErrorLog({
+export async function queryErrorLog({
     createdBefore,
     createdAfter,
     type = "",
@@ -30,7 +23,7 @@ export const queryErrorLog = createSharedFn({
     pageSize = defaultPageSize,
     sortBy = "createdAt",
     sortOrder = "desc",
-}) {
+}: QueryErrorLogParams) {
     const where = getErrorLogWhere({
         AND: [
             ...type
@@ -111,6 +104,6 @@ export const queryErrorLog = createSharedFn({
         pageNum,
         pageSize,
     })
-})
+}
 
 export type ErrorLog = Awaited<ReturnType<typeof queryErrorLog>>["list"][number]

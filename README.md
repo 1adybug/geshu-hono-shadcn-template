@@ -1,452 +1,115 @@
-# 项目介绍
+# geshu-hono-shadcn-template
 
-格数科技 Next.js 项目模板
+格数科技的 Hono + Rsbuild + React SPA 项目模板，由 `geshu-next-shadcn-template` 迁移而来。
 
-## 创建新项目
+## 技术栈
+
+- Hono + `@hono/node-server`：API、Better Auth 和生产静态资源服务
+- Rsbuild + React 19：SPA 开发与生产构建
+- sdrr + React Router：按 `app` 目录生成路由
+- TanStack Query / Form / Table
+- Prisma + SQLite
+- Tailwind CSS v4 + shadcn/ui
+
+## 创建项目
 
 ```bash
-git clone https://github.com/1adybug/geshu-next-template my-new-project
+git clone https://github.com/1adybug/geshu-hono-shadcn-template.git my-new-project
 cd my-new-project
 git remote rename origin template
 git remote set-url --push template no_push://template
+pnpm install
 ```
 
-## env 文件
-
-项目将启动、构建、认证核心配置、格数账号平台 OAuth Client 配置，以及首次登录前就必须可用的默认邮箱域名和短信通道配置放在 `.env` 或部署平台环境变量中。验证码日志打印、限流、用户资料开关、自动备份等运行时配置请登录后台后在“系统设置”页面维护。
-
-说明：
-
-- 以 `NEXT_PUBLIC_` 开头的变量会暴露给浏览器，仅放置浏览器也需要读取的非敏感配置
-- `NODE_ENV` 由运行命令和框架控制，一般不需要手动设置
-- `BETTER_AUTH_SECRET` 在生产环境是强制项，未配置会导致服务启动失败；开发环境会使用仅本地可用的兜底值
-- 格数账号平台登录由环境变量配置，因为 Better Auth 的 `genericOAuth` Provider 配置在当前版本中是启动时静态配置
-- `NEXT_PUBLIC_TIME_ZONE` 用于页面展示和自动备份窗口，留空时默认 `Asia/Shanghai`；该变量会进入浏览器构建产物，修改后需要重新构建镜像或前端资源，避免服务端 HTML 和浏览器 hydration 使用不同配置
-- 默认邮箱域名、短信通道和密钥不会进入系统设置，避免首次进入系统时因无法登录而无法配置基础能力
-- 系统设置中的“短信设置”只控制是否在服务端系统日志中打印验证码
-- 系统设置中的配置不读取同名环境变量，首次初始化时只写入代码默认值
-
-### 变量清单
-
-| 变量名                          | 必填 | 说明                                    | 示例 / 默认值                     |
-| ------------------------------- | ---- | --------------------------------------- | --------------------------------- |
-| `COOKIE_PREFIX`                 | 是   | 登录相关 Cookie 前缀                    | `geshu`                           |
-| `BETTER_AUTH_SECRET`            | 是   | Better Auth 签名密钥                    | `your_better_auth_secret`         |
-| `BETTER_AUTH_URL`               | 按需 | 服务端 Better Auth 基础地址             | `https://example.com`             |
-| `NEXT_PUBLIC_BETTER_AUTH_URL`   | 按需 | 客户端 Better Auth 基础地址             | `https://example.com`             |
-| `GESHU_OAUTH_LOGIN_ENABLED`     | 否   | 是否启用格数账号平台登录                | `1`                               |
-| `GESHU_OAUTH_ISSUER`            | 按需 | 格数账号平台地址或 OpenID Configuration | `https://auth.example.com`        |
-| `GESHU_OAUTH_CLIENT_ID`         | 按需 | 格数账号平台 OAuth Client ID            | `your_client_id`                  |
-| `GESHU_OAUTH_CLIENT_SECRET`     | 按需 | 格数账号平台 OAuth Client Secret        | `your_client_secret`              |
-| `GESHU_OAUTH_ALLOW_CREATE_USER` | 否   | 手机号未匹配本地用户时是否创建普通用户  | `0`                               |
-| `NEXT_OUTPUT`                   | 否   | Next 构建输出模式                       | `standalone` / `export`           |
-| `NEXT_TELEMETRY_DISABLED`       | 否   | 是否关闭 Next 遥测上报                  | `1`                               |
-| `NEXT_PUBLIC_TIME_ZONE`         | 否   | 应用时间时区，留空默认上海              | `Asia/Shanghai`                   |
-| `REDIS_URL`                     | 按需 | Redis 地址（仅接入 Redis 限流存储时用） | `redis://127.0.0.1:6379`          |
-| `TRUSTED_CLIENT_IP_HEADER`      | 按需 | 指定可信反向代理写入的真实客户端 IP 头  | `x-client-ip` / `x-forwarded-for` |
-| `DEFAULT_EMAIL_DOMAIN`          | 否   | 手机号注册时生成临时邮箱所使用的域名    | `example.com`                     |
-| `IS_INTRANET`                   | 否   | 是否使用内网短信通道                    | `0`                               |
-| `QJP_SMS_URL`                   | 按需 | 内网短信服务地址                        | `http://sms.example.com`          |
-| `ALIYUN_ACCESS_KEY_ID`          | 按需 | 阿里云短信 AccessKey ID                 | `your_access_key_id`              |
-| `ALIYUN_ACCESS_KEY_SECRET`      | 按需 | 阿里云短信 AccessKey Secret             | `your_access_key_secret`          |
-
-### 推荐的本地 `.env` 示例
-
-```env
-COOKIE_PREFIX="geshu"
-BETTER_AUTH_SECRET="your_better_auth_secret"
-
-# Better Auth URL（按需）
-BETTER_AUTH_URL=""
-
-# 客户端可选（未配置时使用当前域名）
-NEXT_PUBLIC_BETTER_AUTH_URL=""
-
-# 格数账号平台登录
-GESHU_OAUTH_LOGIN_ENABLED="1"
-GESHU_OAUTH_ISSUER="https://auth.example.com"
-GESHU_OAUTH_CLIENT_ID="your_client_id"
-GESHU_OAUTH_CLIENT_SECRET="your_client_secret"
-GESHU_OAUTH_ALLOW_CREATE_USER="0"
-
-# 构建与运行
-NEXT_OUTPUT="standalone"
-NEXT_TELEMETRY_DISABLED="1"
-NEXT_PUBLIC_TIME_ZONE=""
-
-# 可选：仅在你启用 Redis 限流存储时使用
-REDIS_URL="redis://127.0.0.1:6379"
-
-# 可选：不配置时默认读取 x-client-ip 或 x-forwarded-for
-TRUSTED_CLIENT_IP_HEADER=""
-
-# 临时邮箱域名
-DEFAULT_EMAIL_DOMAIN="example.com"
-
-# 短信配置
-IS_INTRANET="0"
-QJP_SMS_URL=""
-ALIYUN_ACCESS_KEY_ID=""
-ALIYUN_ACCESS_KEY_SECRET=""
-```
-
-### Better Auth URL 解析规则
-
-服务端 `auth` 的 `baseURL` 解析顺序：
-
-1. `BETTER_AUTH_URL`
-2. 开发环境兜底 `http://localhost:3000`
-
-客户端 `authClient` 的 `baseURL` 解析顺序：
-
-1. 浏览器当前域名 `window.location.origin`
-2. `NEXT_PUBLIC_BETTER_AUTH_URL`
-3. 开发环境兜底 `http://localhost:3000`
-
-## 格数账号平台登录
-
-本项目可以作为 OAuth Client 接入 `geshu-oauth` 账号平台。账号平台后台新增 OAuth 应用时，推荐配置：
-
-- 应用主页：`BETTER_AUTH_URL`
-- 回调地址：`{BETTER_AUTH_URL}/api/auth/oauth2/callback/geshu-oauth`
-- 授权范围：`openid profile phone`
-- 授权流程：`authorization_code`
-- Token Endpoint 认证方式：`client_secret_basic`
-- PKCE：开启
-
-`GESHU_OAUTH_LOGIN_ENABLED` 默认开启。只有同时配置了 `GESHU_OAUTH_ISSUER`、`GESHU_OAUTH_CLIENT_ID` 和 `GESHU_OAUTH_CLIENT_SECRET` 后，登录页的“格数账号登录”才可用。这些 OAuth 环境变量在应用启动时读取，修改后需要重启应用。
-
-登录成功后会优先使用账号平台返回的手机号匹配本地已有用户并自动绑定 OAuth 账号。`GESHU_OAUTH_ALLOW_CREATE_USER` 默认关闭；开启后，手机号未匹配本地用户时会使用账号平台用户信息创建普通用户。
-
-## 系统设置
-
-管理员登录后可以在“系统设置”页面维护运行时配置。配置保存在数据库中，保存后无需重启即可影响后续请求或调度。
-
-系统设置不会读取同名环境变量。首次初始化时，缺失的配置项会写入代码默认值；之后以数据库中的值为准。
-
-当前包含的设置：
-
-- 基础设置：是否允许用户修改昵称、是否允许用户修改手机号
-- 短信设置：是否在服务端系统日志中打印验证码，默认开启
-- 限流设置：是否启用全局限流
-- 自动备份：备份开关、备份频率、保留数量、日志保留时长、S3 / 兼容对象存储配置
-
-系统设置中的密钥类设置只在服务端使用。页面不会回显明文，留空保存表示保持原值不变，输入新值才会覆盖。
-
-## 自动备份
-
-项目支持在应用启动时通过 `instrumentation.ts` 自动启动 SQLite 备份调度器。
-
-适用前提：
-
-- 当前部署为单实例或单主实例
-- 应用进程是常驻运行，而不是短生命周期 Serverless
-- 生产环境的 `/app/data` 已挂载为持久化目录
-
-### 默认策略
-
-- 每小时 1 份，保留 48 小时
-- 每天 1 份，保留 30 天
-- 每周 1 份，保留 12 周
-- 每月 1 份，保留 12 个月
-- `OperationLog` 和 `ErrorLog` 默认只保留 1 年内数据
-
-### 系统设置
-
-自动备份配置位于“系统设置 / 自动备份”。保存后会立即同步调度器状态：开启时启动自动备份，关闭时停止自动备份；频率、保留策略和 S3 配置会在后续调度中生效。
-
-#### 备份开关
-
-是否开启自动备份，默认关闭。
-
-#### 备份频率与保留数量
-
-每个层级都有两个配置：
-
-- 备份周期：每隔多少个周期执行一次
-- 保留数量：当前层级最多保留多少份本地备份
-
-周期说明：
-
-- 小时备份周期为 `2` 表示每 2 小时备份一次
-- 每日备份周期为 `3` 表示每 3 天备份一次
-- 每周备份周期为 `2` 表示每 2 周备份一次
-- 每月备份周期为 `3` 表示每 3 个月备份一次
-
-备份周期和保留数量都必须是正整数。
-
-#### 日志保留时长
-
-默认 `365d`。
-
-支持格式：
-
-- `30d`
-- `52w`
-- `24h`
-- `90m`
-
-无效时会回退到 `365d`。
-
-#### S3 / 兼容对象存储
-
-字段说明：
-
-- S3 地址：对象存储地址
-- S3 区域：区域
-- S3 存储桶：桶名
-- S3 AccessKey ID：访问密钥 ID
-- S3 AccessKey Secret：访问密钥 Secret
-- S3 对象前缀：可选，对象前缀
-- S3 Path Style：可选，兼容部分 S3 网关
-
-只要任一必填字段缺失或无效，则只做本地备份，不上传对象存储。
-
-### 目录结构
-
-自动备份会在 `data/backups` 下创建目录：
+当前迁移仓库仍以 Next.js 模板作为上游：
 
 ```text
-data/backups/
-├─ hourly/
-├─ daily/
-├─ weekly/
-├─ monthly/
-├─ manifests/
-├─ tmp/
-└─ state.json
+template  https://github.com/1adybug/geshu-next-shadcn-template.git (fetch)
+template  no_push://template (push)
 ```
 
-说明：
+## 本地开发
 
-- 各层级目录保存对应备份文件
-- `manifests` 保存每份备份的元数据
-- `tmp` 保存临时压缩文件
-- `state.json` 用于避免同一周期重复备份
+复制 `.env.example` 为 `.env`，至少修改 `BETTER_AUTH_SECRET`，然后执行：
 
-### 工作方式
-
-1. 应用启动时注册备份调度器
-2. 调度器每分钟检查一次是否进入新的小时 / 日 / 周 / 月周期
-3. 命中周期后使用 SQLite 热备份生成一致性快照
-4. 备份成功后执行完整性校验
-5. 然后按本地保留策略清理旧备份
-6. 每天执行一次日志清理
-7. 如果 S3 配置有效，再将备份压缩后上传到对象存储
-
-### 注意事项
-
-- 该方案适合单实例常驻进程
-- 如果未来部署为多实例，建议补充分布式锁，避免重复备份
-- 如果应用长时间停机，错过的周期不会逐个补跑，只会在恢复后补当前周期
-- 恢复时建议优先从本地备份恢复，远端对象存储作为灾备副本
-
-## Server Action 限流
-
-项目内的 `server action` 限流能力已经内置在 `createResponseFn` 流程中。  
-只要你的 action 是通过 `createResponseFn` 创建的，就会自动进入限流中间件。
-
-核心入口：
-
-- `server/createResponseFn.ts`
-- `server/createRateLimit.ts`
-
-### 1. 快速使用
-
-在 `shared` 函数上定义 `rateLimit` 属性即可，推荐使用 `createRateLimit` 获取完整类型提示：
-
-```ts
-import { createRateLimit } from "@/server/createRateLimit"
-
-export async function login(params: LoginParams) {
-    // ...
-}
-
-login.rateLimit = createRateLimit({
-    limit: 5,
-    windowMs: 60_000,
-    message: "登录尝试过于频繁，请稍后再试",
-})
+```bash
+pnpm install
+pnpm run db:dev
+pnpm run dev
 ```
 
-然后在 `actions` 中正常包一层 `createResponseFn`：
+`pnpm run dev` 会同时启动：
 
-```ts
-"use server"
+- Rsbuild SPA：`http://localhost:5173`
+- Hono API：`http://localhost:3000`
 
-import { createResponseFn } from "@/server/createResponseFn"
+开发服务器会把 `/api` 代理到 Hono。
 
-import { login } from "@/shared/login"
+## 路由
 
-export const loginAction = createResponseFn(login)
+页面继续放在 `app` 目录。sdrr 根据 `page.tsx`、`layout.tsx`、`error.tsx` 和 `not-found.tsx` 生成 `components/Router.tsx`。
+
+新增或移动页面后执行：
+
+```bash
+pnpm exec sdrr build
 ```
 
-### 2. 默认行为
+`components/Router.tsx` 是生成文件，不要手工编辑。
 
-如果 `shared` 函数没有定义 `fn.rateLimit`，会使用全局默认配置：
+## 服务端调用
 
-- `limit`: `120`
-- `windowMs`: `60_000`
-- `prefix`: `"server-action"`
-- `message`: `"操作过于频繁，请稍后再试"`
+业务能力使用严格同名的三层结构：
 
-默认 key 规则：
+1. `shared/<name>.ts`：普通异步业务函数；
+2. `routes/<name>.ts`：Hono 方法、Zod 校验、权限、限流和响应；
+3. `apis/<name>.ts`：基于 Hono RPC 的同名浏览器函数；
+4. 需要时在 `hooks` 中通过 TanStack Query 使用 API 函数。
 
-`{prefix}:{action}:{userId 或 ip 或 anonymous}`
+三层文件名必须严格 1:1，使用 `pnpm run check:layers` 检查。Better Auth、健康检查和生产静态资源服务属于基础设施，保留在 `server/app.ts`。
 
-说明：
+普通 JSON 动作使用显式 `/api/action/<name>` 路由；文件流和表单同样保留对应的三层文件，并在各自 `routes` 文件内声明特殊 HTTP 语义。
 
-- 已登录用户优先按 `user.id` 限流
-- 未登录用户按 `ip` 限流
-- 获取不到 `ip` 时回退到 `anonymous`
+## 常用命令
 
-### 3. 函数级配置
-
-#### 3.1 自定义 key
-
-当你需要按账号、手机号等字段精细限流时，可以提供 `getKey`：
-
-```ts
-import { type RateLimitContext, createRateLimit } from "@/server/createRateLimit"
-
-function getLoginRateLimitKey(context: RateLimitContext) {
-    const params = context.args[0] as LoginParams | undefined
-    const account = params?.account || "unknown-account"
-    const ip = context.ip || "unknown-ip"
-    return `login:${ip}:${account}`
-}
-
-login.rateLimit = createRateLimit({
-    limit: 5,
-    windowMs: 60_000,
-    message: "登录尝试过于频繁，请稍后再试",
-    getKey: getLoginRateLimitKey,
-})
+```bash
+pnpm run dev          # 同时启动 Hono 与 Rsbuild
+pnpm run typecheck    # TypeScript 检查
+pnpm run check:layers # 检查 shared/routes/apis 文件对应关系
+pnpm run check:hono   # 验证 Hono 状态码、CSRF、RPC 下载与生产静态能力
+pnpm run lint         # ESLint
+pnpm run format       # Prettier
+pnpm run build        # 构建 SPA 与 Hono 服务
+pnpm run start        # 启动生产构建
+pnpm run migrate      # 创建开发迁移
+pnpm run db:dev       # 应用开发数据库迁移
+pnpm run db:prod      # 应用生产数据库迁移
 ```
 
-`RateLimitContext` 包含：
+生产构建产物：
 
-- `action`: 当前 action 名称
-- `args`: action 参数数组
-- `user`: 当前登录用户
-- `ip`: 请求来源 IP
+- `dist/client`：SPA 静态资源
+- `dist/server/index.mjs`：Hono Node 服务入口
 
-#### 3.2 关闭某个函数的限流
+## 环境变量
 
-方式一，直接关闭：
+完整示例见 `.env.example`。其中：
 
-```ts
-someFn.rateLimit = false
+- `BETTER_AUTH_SECRET`：生产环境必填；
+- `BETTER_AUTH_URL`：Hono/Better Auth 的公开服务地址；
+- `PUBLIC_BETTER_AUTH_URL`：可暴露给浏览器的认证地址，留空时使用当前站点；
+- `PUBLIC_TIME_ZONE`：浏览器展示时区，默认 `Asia/Shanghai`；
+- `DEFAULT_EMAIL_DOMAIN`：手机号账号生成临时邮箱时使用的域名；
+- `PORT` / `HOSTNAME`：Hono 监听端口和地址，默认 `3000` / `0.0.0.0`。
+- `TRUSTED_CLIENT_IP_HEADER`：可信反向代理提供客户端 IP 的请求头；留空时使用连接远端地址。
+
+只有 `PUBLIC_` 前缀变量可以进入浏览器构建产物，敏感配置不得使用该前缀。
+
+## Docker
+
+```bash
+docker build -t geshu-hono-shadcn-template .
+docker run --rm -p 3000:3000 --env-file .env geshu-hono-shadcn-template
 ```
 
-方式二，使用配置对象关闭：
-
-```ts
-import { createRateLimit } from "@/server/createRateLimit"
-
-someFn.rateLimit = createRateLimit({
-    enabled: false,
-})
-```
-
-### 4. 全局开关
-
-#### 4.1 系统设置开关
-
-通过“系统设置 / 限流设置 / 启用全局限流”控制全局是否启用限流。开发环境默认关闭，其他环境默认开启。
-
-#### 4.2 运行时开关
-
-你也可以在服务端代码中动态切换：
-
-```ts
-import { isGlobalRateLimitEnabled, setGlobalRateLimitEnabled } from "@/server/createRateLimit"
-
-setGlobalRateLimitEnabled(false)
-
-const enabled = await isGlobalRateLimitEnabled()
-console.log(enabled)
-```
-
-### 5. 全局策略配置
-
-可以在应用启动时设置全局默认策略：
-
-```ts
-import { setGlobalRateLimitOptions } from "@/server/createRateLimit"
-
-setGlobalRateLimitOptions({
-    limit: 200,
-    windowMs: 120_000,
-    prefix: "my-action",
-    message: "请求太频繁，请稍后重试",
-})
-```
-
-### 6. 存储解耦
-
-限流逻辑与存储已解耦，当前支持：
-
-- 内存存储（默认）
-- 自建 Redis 存储（通过适配器接入）
-
-#### 6.1 默认内存存储
-
-无需额外配置，系统默认使用：
-
-`createMemoryRateLimitStore()`
-
-适用场景：
-
-- 单实例部署
-- 本地开发
-
-注意：
-
-- 多实例下各实例计数独立，不共享限流状态
-
-#### 6.2 使用 Redis 存储
-
-通过 `createRedisRateLimitStore` 提供 `get` / `set` / `delete` 适配函数：
-
-```ts
-import { Redis } from "ioredis"
-
-import { createRedisRateLimitStore, setGlobalRateLimitStore } from "@/server/createRateLimit"
-
-const redis = new Redis(process.env.REDIS_URL!)
-
-setGlobalRateLimitStore(
-    createRedisRateLimitStore({
-        async get(key) {
-            return redis.get(key)
-        },
-        async set({ key, value, ttlMs }) {
-            await redis.set(key, value, "PX", ttlMs)
-        },
-        async delete(key) {
-            await redis.del(key)
-        },
-    }),
-)
-```
-
-建议在应用启动早期执行一次 `setGlobalRateLimitStore(...)`，避免运行中频繁切换。
-
-### 7. 类型总览
-
-常用类型和函数：
-
-- `RateLimitConfig`
-- `RateLimitContext`
-- `RateLimitStore`
-- `createRateLimit(...)`
-- `setGlobalRateLimitOptions(...)`
-- `setGlobalRateLimitEnabled(...)`
-- `setGlobalRateLimitStore(...)`
-
-### 8. 常见建议
-
-- 登录、验证码、初始化账号等接口建议单独设置更严格的 `rateLimit`
-- 管理后台高频查询通常可以用默认全局限流
-- 生产多实例部署建议优先使用 Redis 存储，避免限流状态不一致
+容器启动时会先执行 `prisma migrate deploy`，再以非 root 用户启动 Hono。

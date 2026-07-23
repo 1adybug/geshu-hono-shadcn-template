@@ -1,15 +1,12 @@
-import type { FC, ReactNode } from "react"
+import { type FC, Fragment } from "react"
 
-import type { Metadata } from "next"
+import { Outlet } from "react-router"
 
-export const metadata: Metadata = {
-    title: "用户管理",
-}
-
-export interface LayoutProps {
-    children?: ReactNode
-}
-
-const Layout: FC<LayoutProps> = ({ children }) => children
+const Layout: FC = () => (
+    <Fragment>
+        <title>用户管理 · 格数科技</title>
+        <Outlet />
+    </Fragment>
+)
 
 export default Layout

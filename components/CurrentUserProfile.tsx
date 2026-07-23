@@ -1,8 +1,7 @@
-"use client"
-
 import { type ComponentProps, type FC, type ReactNode, useEffect, useState } from "react"
 
 import { useForm } from "@tanstack/react-form"
+import { useQueryClient } from "@tanstack/react-query"
 import { type StrictOmit, clsx, getEnumKey } from "deepsea-tools"
 import {
     AtSignIcon,
@@ -17,7 +16,6 @@ import {
     UserRoundIcon,
     XIcon,
 } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { z } from "zod"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -77,7 +75,7 @@ function getAvatarText(user: User) {
 }
 
 export const CurrentUserProfile: FC<CurrentUserProfileProps> = ({ className, data, allowUpdateNickname, allowUpdatePhoneNumber, ...rest }) => {
-    const router = useRouter()
+    const queryClient = useQueryClient()
     const [currentUser, setCurrentUser] = useState(data)
     const [isEditingNickname, setIsEditingNickname] = useState(false)
     const [isPhoneNumberEditorOpen, setIsPhoneNumberEditorOpen] = useState(false)
@@ -86,7 +84,7 @@ export const CurrentUserProfile: FC<CurrentUserProfileProps> = ({ className, dat
         onSuccess(nextUser) {
             setCurrentUser(nextUser)
             setIsEditingNickname(false)
-            router.refresh()
+            void queryClient.invalidateQueries({ queryKey: ["current-user"] })
         },
     })
 
@@ -130,7 +128,7 @@ export const CurrentUserProfile: FC<CurrentUserProfileProps> = ({ className, dat
 
     function onPhoneNumberEditorSuccess(nextUser: User) {
         setCurrentUser(nextUser)
-        router.refresh()
+        void queryClient.invalidateQueries({ queryKey: ["current-user"] })
     }
 
     const roleName = getEnumKey(UserRole, currentUser.role)

@@ -2,8 +2,8 @@ import { prisma } from "@/prisma"
 
 import { stringifyParams } from "@/utils/stringifyParams"
 
-import { getCurrentUser } from "./getCurrentUser"
 import { getIp } from "./getIp"
+import { getSessionUser } from "./getSessionUser"
 import { getUserAgent } from "./getUserAgent"
 
 export interface AddOperationLogParams {
@@ -13,7 +13,7 @@ export interface AddOperationLogParams {
 
 export async function addOperationLog({ action, args }: AddOperationLogParams) {
     try {
-        const user = await getCurrentUser()
+        const user = await getSessionUser()
         const params = stringifyParams(args)
         await prisma.$transaction([
             prisma.operationLog.create({

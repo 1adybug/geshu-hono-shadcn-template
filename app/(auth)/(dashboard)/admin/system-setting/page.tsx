@@ -1,13 +1,12 @@
-import type { FC } from "react"
-
-import type { Metadata } from "next"
+import { type FC, Fragment } from "react"
 
 import { SystemSettingForm } from "@/components/SystemSettingForm"
 
-export const metadata: Metadata = {
-    title: "系统设置",
-}
-
-const Page: FC = () => <SystemSettingForm />
+const Page: FC = () => (
+    <Fragment>
+        <title>系统设置 · 格数科技</title>
+        <SystemSettingForm />
+    </Fragment>
+)
 
 export default Page

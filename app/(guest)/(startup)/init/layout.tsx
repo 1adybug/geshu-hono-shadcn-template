@@ -1,25 +1,21 @@
-import type { FC, ReactNode } from "react"
+import { type FC, Fragment } from "react"
 
-import type { Metadata } from "next"
-import { redirect } from "next/navigation"
+import { Navigate, Outlet } from "react-router"
 
-import { prisma } from "@/prisma"
+import { useInitializationStatus } from "@/hooks/useInitializationStatus"
 
-export const dynamic = "force-dynamic"
+const Layout: FC = () => {
+    const { data, isLoading } = useInitializationStatus()
 
-export const metadata: Metadata = {
-    title: "初始化",
-}
+    if (isLoading) return null
+    if (data?.initialized) return <Navigate to="/" replace />
 
-export interface LayoutProps {
-    children?: ReactNode
-}
-
-const Layout: FC<LayoutProps> = async ({ children }) => {
-    const count = await prisma.user.count()
-    if (count > 0) return redirect("/")
-
-    return children
+    return (
+        <Fragment>
+            <title>初始化 · 格数科技</title>
+            <Outlet />
+        </Fragment>
+    )
 }
 
 export default Layout

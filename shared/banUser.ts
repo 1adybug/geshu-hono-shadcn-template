@@ -1,30 +1,21 @@
-import { headers } from "next/headers"
-
 import { prisma } from "@/prisma"
 
-import { banUserSchema } from "@/schemas/banUser"
+import type { BanUserParams } from "@/schemas/banUser"
 
 import { auth } from "@/server/auth"
-import { createSharedFn } from "@/server/createSharedFn"
+import { getRequestHeaders } from "@/server/getRequestHeaders"
+import { badRequest } from "@/server/httpError"
 
-import { ClientError } from "@/utils/clientError"
-
-export const banUser = createSharedFn({
-    name: "banUser",
-    schema: banUserSchema,
-})(async function banUser(params) {
+export async function banUser(params: BanUserParams) {
     try {
         const { user } = await auth.api.banUser({
             body: params,
-            headers: await headers(),
+            headers: getRequestHeaders(),
         })
 
         const user2 = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
         return user2
     } catch (error) {
-        throw new ClientError({
-            message: "封禁失败",
-            origin: error,
-        })
+        throw badRequest("封禁失败", error)
     }
-})
+}

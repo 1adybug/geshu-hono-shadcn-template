@@ -3,8 +3,9 @@ import { type WorkBook, read, utils, write } from "@1adybug/xlsx"
 import { type AddUserParams, addUserParser } from "@/schemas/addUser"
 import { UserRole } from "@/schemas/userRole"
 
-import { ClientError } from "@/utils/clientError"
 import { formatDateTime } from "@/utils/formatDateTime"
+
+import { badRequest } from "./httpError"
 
 const UserImportHeader = {
     name: "用户名",
@@ -81,7 +82,7 @@ function getUserRoleValue(value: unknown) {
     if (!text) return UserRole.用户
     if (text === "管理员" || text === UserRole.管理员) return UserRole.管理员
     if (text === "用户" || text === UserRole.用户) return UserRole.用户
-    throw new ClientError("角色只能填写“管理员”或“用户”")
+    throw badRequest("角色只能填写“管理员”或“用户”")
 }
 
 function createWorkbook({ rows, sheetName, columnWidths }: CreateWorkbookParams) {
@@ -109,7 +110,7 @@ function getWorksheetCellText(worksheet: WorkBook["Sheets"][string], row: number
 
 function getHeaderColumnMap(worksheet: WorkBook["Sheets"][string]) {
     const rangeText = worksheet["!ref"]
-    if (!rangeText) throw new ClientError("xlsx 文件没有用户数据")
+    if (!rangeText) throw badRequest("xlsx 文件没有用户数据")
 
     const range = utils.decode_range(rangeText)
     const columnMap = new Map<string, number>()
@@ -124,7 +125,7 @@ function getHeaderColumnMap(worksheet: WorkBook["Sheets"][string]) {
 
 function getRequiredColumn(columnMap: Map<string, number>, header: string) {
     const column = columnMap.get(header)
-    if (column === undefined) throw new ClientError(`导入文件缺少列：${header}`)
+    if (column === undefined) throw badRequest(`导入文件缺少列：${header}`)
     return column
 }
 
@@ -142,7 +143,7 @@ function parseUserImportRow(data: UserImportWorkbookRowData) {
         })
     } catch (error) {
         const message = error instanceof Error ? error.message : "用户数据无效"
-        throw new ClientError(message)
+        throw badRequest(message, error)
     }
 }
 
@@ -197,10 +198,10 @@ export function createUserImportResultWorkbook(rows: UserImportWorkbookResultRow
 export function parseUserImportWorkbook(buffer: Uint8Array): UserImportWorkbookRow[] {
     const workbook = read(buffer, { type: "buffer", raw: false })
     const sheetName = workbook.SheetNames[0]
-    if (!sheetName) throw new ClientError("xlsx 文件没有工作表")
+    if (!sheetName) throw badRequest("xlsx 文件没有工作表")
 
     const worksheet = workbook.Sheets[sheetName]
-    if (!worksheet) throw new ClientError("xlsx 文件没有工作表")
+    if (!worksheet) throw badRequest("xlsx 文件没有工作表")
 
     const { range, columnMap, headerRow } = getHeaderColumnMap(worksheet)
     const nameColumn = getRequiredColumn(columnMap, UserImportHeader.name)

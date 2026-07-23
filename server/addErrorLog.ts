@@ -1,10 +1,11 @@
+import { HTTPException } from "hono/http-exception"
+
 import { prisma } from "@/prisma"
 
-import { ClientError } from "@/utils/clientError"
 import { stringifyParams } from "@/utils/stringifyParams"
 
-import { getCurrentUser } from "./getCurrentUser"
 import { getIp } from "./getIp"
+import { getSessionUser } from "./getSessionUser"
 import { getUserAgent } from "./getUserAgent"
 
 function getConstructorName(obj: unknown): string {
@@ -24,7 +25,7 @@ export interface AddErrorLogParams {
 
 export async function addErrorLog({ error, action, args }: AddErrorLogParams) {
     try {
-        const user = await getCurrentUser()
+        const user = await getSessionUser()
         const params = stringifyParams(args)
         await prisma.$transaction([
             prisma.errorLog.create({
@@ -45,9 +46,9 @@ export async function addErrorLog({ error, action, args }: AddErrorLogParams) {
             }),
         ])
 
-        if (error instanceof ClientError && error.origin) {
+        if (error instanceof HTTPException && error.cause) {
             await addErrorLog({
-                error: error.origin,
+                error: error.cause,
                 action,
                 args,
             })

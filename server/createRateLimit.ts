@@ -84,8 +84,6 @@ export interface CheckRateLimitParams {
     rateLimit?: boolean | RateLimitConfig
 }
 
-export interface CreateRateLimitParams extends RateLimitConfig {}
-
 const defaultGlobalRateLimitOptions: RateLimitOptions = {
     limit: 120,
     windowMs: 60_000,
@@ -136,10 +134,6 @@ export async function isGlobalRateLimitEnabled() {
         console.error("[rate-limit] 读取系统设置失败，使用代码默认值", error)
         return !isDevelopment
     }
-}
-
-export function createRateLimit<T extends CreateRateLimitParams>(rateLimit: T) {
-    return rateLimit
 }
 
 export function setGlobalRateLimitOptions(params: SetGlobalRateLimitOptionsParams) {

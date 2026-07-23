@@ -1,11 +1,10 @@
-"use client"
-
 import { type FC, useEffect, useId, useState } from "react"
 
 import { useForm } from "@tanstack/react-form"
+import { useQueryClient } from "@tanstack/react-query"
 import { getErrorMessage } from "deepsea-tools"
 import { LoaderCircleIcon } from "lucide-react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useNavigate, useSearchParams } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -45,9 +44,9 @@ function getOAuthLoginErrorMessage(error: string, description?: string) {
 
 const Page: FC = () => {
     const key = useId()
-    const pathname = usePathname()
-    const router = useRouter()
-    const searchParams = useSearchParams()
+    const navigate = useNavigate()
+    const queryClient = useQueryClient()
+    const [searchParams, setSearchParams] = useSearchParams()
     const [left, setLeft] = useState(0)
     const [isOAuthLoginPending, setIsOAuthLoginPending] = useState(false)
 
@@ -60,8 +59,10 @@ const Page: FC = () => {
     })
 
     const { mutateAsync: login, isPending: isLoginPending } = useLogin({
-        onSuccess() {
-            router.refresh()
+        async onSuccess() {
+            await queryClient.invalidateQueries({ queryKey: ["current-user"] })
+            const from = searchParams.get("from")?.trim()
+            navigate(from?.startsWith("/") && !from.startsWith("//") ? from : "/", { replace: true })
         },
     })
 
@@ -95,9 +96,8 @@ const Page: FC = () => {
         nextSearchParams.delete("error")
         nextSearchParams.delete("error_description")
 
-        const search = nextSearchParams.toString()
-        window.history.replaceState(null, "", search ? `${pathname}?${search}` : pathname)
-    }, [key, pathname, searchParams])
+        setSearchParams(nextSearchParams, { replace: true })
+    }, [key, searchParams, setSearchParams])
 
     async function sendOtp() {
         try {

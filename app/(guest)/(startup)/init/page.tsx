@@ -1,10 +1,9 @@
-"use client"
-
 import type { FC } from "react"
 
 import { useForm } from "@tanstack/react-form"
+import { useQueryClient } from "@tanstack/react-query"
 import { LoaderCircleIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,11 +26,13 @@ const fields = [
 ] as const
 
 const Page: FC = () => {
-    const router = useRouter()
+    const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
     const { mutateAsync, isPending } = useCreateFirstUser({
-        onSuccess() {
-            router.replace("/login")
+        async onSuccess() {
+            await queryClient.invalidateQueries({ queryKey: ["initialization-status"] })
+            navigate("/login", { replace: true })
         },
     })
 

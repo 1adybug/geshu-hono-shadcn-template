@@ -1,9 +1,7 @@
-import { createRequestFn } from "deepsea-tools"
-
-import { loginAction } from "@/actions/login"
+import { login } from "@/apis/login"
 
 import { createUseLogin } from "@/presets/createUseLogin"
 
-export const loginClient = createRequestFn(loginAction)
+export { login }
 
-export const useLogin = createUseLogin(loginClient)
+export const useLogin = createUseLogin(login)

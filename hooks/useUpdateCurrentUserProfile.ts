@@ -1,14 +1,7 @@
-import { createRequestFn } from "deepsea-tools"
-
-import { updateCurrentUserProfileAction } from "@/actions/updateCurrentUserProfile"
+import { updateCurrentUserProfile } from "@/apis/updateCurrentUserProfile"
 
 import { createUseUpdateCurrentUserProfile } from "@/presets/createUseUpdateCurrentUserProfile"
 
-import { updateCurrentUserProfileSchema } from "@/schemas/updateCurrentUserProfile"
+export { updateCurrentUserProfile }
 
-export const updateCurrentUserProfileClient = createRequestFn({
-    fn: updateCurrentUserProfileAction,
-    schema: updateCurrentUserProfileSchema,
-})
-
-export const useUpdateCurrentUserProfile = createUseUpdateCurrentUserProfile(updateCurrentUserProfileClient)
+export const useUpdateCurrentUserProfile = createUseUpdateCurrentUserProfile(updateCurrentUserProfile)

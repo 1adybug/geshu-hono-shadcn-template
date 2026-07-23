@@ -1,6 +1,5 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
-import { nextCookies } from "better-auth/next-js"
 import { admin } from "better-auth/plugins"
 import { genericOAuth } from "better-auth/plugins/generic-oauth"
 import { phoneNumber } from "better-auth/plugins/phone-number"
@@ -29,14 +28,14 @@ export interface PrintAuthOtpParams {
 function getAuthBaseUrl() {
     const baseUrl = BetterAuthUrl?.trim()
     if (baseUrl) return baseUrl
-    if (IsDevelopment) return "http://localhost:3000"
+    if (IsDevelopment) return "http://localhost:5173"
     return undefined
 }
 
 function getAuthSecret() {
     const secret = BetterAuthSecret?.trim()
     if (secret) return secret
-    if (IsDevelopment) return "geshu-next-template-development-secret"
+    if (IsDevelopment) return "geshu-hono-shadcn-template-development-secret"
     throw new Error("缺少 BETTER_AUTH_SECRET 环境变量")
 }
 
@@ -117,6 +116,5 @@ export const auth = betterAuth({
                 },
             },
         }),
-        nextCookies(),
     ],
 })

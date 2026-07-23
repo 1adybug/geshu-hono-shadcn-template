@@ -1,11 +1,7 @@
-import type { FC, ReactNode } from "react"
+import type { FC } from "react"
 
 import { Auth } from "@/components/Auth"
 
-export interface LayoutProps {
-    children?: ReactNode
-}
-
-const Layout: FC<LayoutProps> = ({ children }) => <Auth mode="auth">{children}</Auth>
+const Layout: FC = () => <Auth mode="auth" />
 
 export default Layout

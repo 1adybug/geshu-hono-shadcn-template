@@ -18,7 +18,7 @@ import {
 import { prisma } from "@/prisma"
 import { DatabaseUrl } from "@/prisma/databaseUrl"
 
-import { ClientError } from "@/utils/clientError"
+import { badRequest } from "./httpError"
 
 export interface SystemSettingValueMap {
     [key: string]: string | undefined
@@ -279,10 +279,7 @@ export function normalizeSystemSettingValue({ definition, value, currentValue }:
         const schema = definition.required ? requiredStringSchema : stringSchema
         return schema.parse(value)
     } catch (error) {
-        throw new ClientError({
-            message: `${definition.label}: ${error instanceof Error ? error.message : "配置无效"}`,
-            origin: error,
-        })
+        throw badRequest(`${definition.label}: ${error instanceof Error ? error.message : "配置无效"}`, error)
     }
 }
 
@@ -309,7 +306,7 @@ export function normalizeBooleanValue(value: unknown) {
     if (stringValue === "true" || stringValue === "1" || stringValue === "yes" || stringValue === "on") return true
     if (stringValue === "false" || stringValue === "0" || stringValue === "no" || stringValue === "off") return false
 
-    throw new ClientError(`无效的布尔配置值: ${value}`)
+    throw badRequest(`无效的布尔配置值: ${value}`)
 }
 
 export function normalizeUrlValue(value: unknown) {
@@ -322,10 +319,7 @@ export function normalizeUrlValue(value: unknown) {
 
         return url.toString()
     } catch (error) {
-        throw new ClientError({
-            message: "URL 格式不正确",
-            origin: error,
-        })
+        throw badRequest("URL 格式不正确", error)
     }
 }
 

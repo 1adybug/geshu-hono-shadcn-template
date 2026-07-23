@@ -1,5 +1,3 @@
-"use client"
-
 import type { ComponentProps, FC } from "react"
 
 import { zhCN } from "date-fns/locale"

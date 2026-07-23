@@ -1,12 +1,9 @@
-"use client"
-
 import { type FC, type ReactNode, useEffect, useState } from "react"
 
 import { useForm } from "@tanstack/react-form"
 import type { ColumnDef, SortingState, Updater } from "@tanstack/react-table"
 import { getEnumKey } from "deepsea-tools"
 import type { StateToQueryFnMap } from "soda-hooks"
-import { useQueryState } from "soda-next"
 import { z } from "zod"
 
 import { DataTable } from "@/components/DataTable"
@@ -21,6 +18,7 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
 import { useQueryErrorLog } from "@/hooks/useQueryErrorLog"
+import { useQueryState } from "@/hooks/useQueryState"
 
 import { getParser } from "@/schemas"
 import { type ErrorLogSortByParams, errorLogSortBySchema } from "@/schemas/errorLogSortBy"

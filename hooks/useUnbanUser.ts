@@ -1,9 +1,7 @@
-import { createRequestFn } from "deepsea-tools"
-
-import { unbanUserAction } from "@/actions/unbanUser"
+import { unbanUser } from "@/apis/unbanUser"
 
 import { createUseUnbanUser } from "@/presets/createUseUnbanUser"
 
-export const unbanUserClient = createRequestFn(unbanUserAction)
+export { unbanUser }
 
-export const useUnbanUser = createUseUnbanUser(unbanUserClient)
+export const useUnbanUser = createUseUnbanUser(unbanUser)

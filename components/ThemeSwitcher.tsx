@@ -1,5 +1,3 @@
-"use client"
-
 import { type ComponentProps, type FC, useEffect, useState } from "react"
 
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react"

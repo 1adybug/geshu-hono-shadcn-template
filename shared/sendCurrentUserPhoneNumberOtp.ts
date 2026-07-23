@@ -2,43 +2,23 @@ import { SystemSettingKey } from "@/constants/systemSettings"
 
 import { prisma } from "@/prisma"
 
-import { type SendCurrentUserPhoneNumberOtpParams, sendCurrentUserPhoneNumberOtpSchema } from "@/schemas/sendCurrentUserPhoneNumberOtp"
+import type { SendCurrentUserPhoneNumberOtpParams } from "@/schemas/sendCurrentUserPhoneNumberOtp"
 
 import { auth } from "@/server/auth"
-import { type RateLimitContext, createRateLimit } from "@/server/createRateLimit"
-import { createSharedFn } from "@/server/createSharedFn"
-import { getCurrentUser } from "@/server/getCurrentUser"
+import { getSessionUser } from "@/server/getSessionUser"
+import { badRequest, unauthorized } from "@/server/httpError"
 import { getBooleanSystemSettingValue } from "@/server/systemSettings"
-
-import { ClientError } from "@/utils/clientError"
 
 export interface SendCurrentUserPhoneNumberOtpResponse {
     phoneNumber: string
 }
 
-function getSendCurrentUserPhoneNumberOtpRateLimitKey(context: RateLimitContext) {
-    const params = context.args[0] as SendCurrentUserPhoneNumberOtpParams | undefined
-    const userId = context.user?.id || "unknown-user"
-    const phoneNumber = params?.phoneNumber || "unknown-phone-number"
-    const ip = context.ip || "unknown-ip"
-    return `send-current-user-phone-number-otp:${userId}:${ip}:${phoneNumber}`
-}
-
-export const sendCurrentUserPhoneNumberOtp = createSharedFn({
-    name: "sendCurrentUserPhoneNumberOtp",
-    schema: sendCurrentUserPhoneNumberOtpSchema,
-    rateLimit: createRateLimit({
-        limit: 1,
-        windowMs: 60_000,
-        message: "验证码发送过于频繁，请稍后再试",
-        getKey: getSendCurrentUserPhoneNumberOtpRateLimitKey,
-    }),
-})(async function sendCurrentUserPhoneNumberOtp({ phoneNumber }): Promise<SendCurrentUserPhoneNumberOtpResponse> {
-    const user = await getCurrentUser()
-    if (!user) throw new ClientError({ message: "请先登录", code: 401 })
+export async function sendCurrentUserPhoneNumberOtp({ phoneNumber }: SendCurrentUserPhoneNumberOtpParams): Promise<SendCurrentUserPhoneNumberOtpResponse> {
+    const user = await getSessionUser()
+    if (!user) throw unauthorized()
 
     const allowUpdatePhoneNumber = await getBooleanSystemSettingValue(SystemSettingKey.允许修改手机号)
-    if (!allowUpdatePhoneNumber) throw new ClientError("当前系统设置不允许用户修改手机号")
+    if (!allowUpdatePhoneNumber) throw badRequest("当前系统设置不允许用户修改手机号")
 
     if (phoneNumber !== user.phoneNumber) {
         const count = await prisma.user.count({
@@ -48,7 +28,7 @@ export const sendCurrentUserPhoneNumberOtp = createSharedFn({
             },
         })
 
-        if (count > 0) throw new ClientError("手机号已存在")
+        if (count > 0) throw badRequest("手机号已存在")
     }
 
     try {
@@ -58,13 +38,10 @@ export const sendCurrentUserPhoneNumberOtp = createSharedFn({
             },
         })
     } catch (error) {
-        throw new ClientError({
-            message: "发送验证码失败",
-            origin: error,
-        })
+        throw badRequest("发送验证码失败", error)
     }
 
     return {
         phoneNumber: phoneNumber.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2"),
     }
-})
+}

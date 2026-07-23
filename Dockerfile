@@ -4,37 +4,36 @@ FROM node:lts-slim AS base
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends -o Acquire::Retries=3 openssl \
+    && npm install --global pnpm@11.10.0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies only when needed
 FROM base AS deps
 
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json ./
-RUN npm install
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# Rebuild the source code only when needed
 FROM base AS builder
+
 WORKDIR /app
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_OUTPUT=standalone
-# 临时的环境变量，仅用于 build 阶段跳过
-ENV BETTER_AUTH_SECRET=7a4d08aa943c38b646d15d6398f013bcab9147f009474be97500262142cf18ad
-ENV BETTER_AUTH_URL=http://example.com
-ENV DEFAULT_EMAIL_DOMAIN=example.com
+ARG BETTER_AUTH_SECRET=docker-build-only-secret-not-for-runtime
+ARG BETTER_AUTH_URL=http://example.com
+ARG DEFAULT_EMAIL_DOMAIN=example.com
 
-RUN npx prisma generate
-RUN npm run build
+RUN pnpm exec prisma generate
+RUN pnpm run build
 
-# Production image, copy all the files and run next
+FROM deps AS production-deps
+
+RUN pnpm prune --prod
+
 FROM base AS runner
+
 WORKDIR /app
 
 RUN apt-get update \
@@ -42,35 +41,27 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
+
 RUN groupadd --gid 1001 nodejs
-RUN useradd --uid 1001 --gid nodejs --create-home nextjs
+RUN useradd --uid 1001 --gid nodejs --create-home hono
 
-COPY --from=builder /app/public ./public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=production-deps /app/node_modules ./node_modules
+COPY --from=builder --chown=hono:nodejs /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/scripts ./scripts
 COPY --from=deps /app/node_modules/prisma/package.json ./prisma-package.json
-RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
 
-RUN npm install -g "prisma@$(node -p "require('./prisma-package.json').version")" \
-    && rm ./prisma-package.json
+RUN npm install --global "prisma@$(node -p "require('./prisma-package.json').version")" \
+    && rm ./prisma-package.json \
+    && mkdir -p /app/data \
+    && chown -R hono:nodejs /app/data
 
-# 创建启动脚本，先以 root 执行 prisma migrate deploy，然后切换用户运行应用
-RUN printf '#!/bin/sh\nset -e\nmkdir -p /app/data\nchown -R nextjs:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nprisma migrate deploy\nchown -R nextjs:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nexec gosu nextjs node server.js\n' > /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+RUN printf '#!/bin/sh\nset -e\nmkdir -p /app/data\nchown -R hono:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nnode scripts/ensureDatabaseFile.mjs\nprisma migrate deploy\nchown -R hono:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nexec gosu hono node dist/server/index.mjs\n' > /app/entrypoint.sh \
+    && chmod +x /app/entrypoint.sh
 
 EXPOSE 3000
 
-ENV PORT=3000
-
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
-ENV HOSTNAME="0.0.0.0"
-
-# 以 root 启动，脚本内部会修复权限并降权
 CMD ["/app/entrypoint.sh"]

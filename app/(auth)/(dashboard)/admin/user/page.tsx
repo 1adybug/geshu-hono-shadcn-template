@@ -1,5 +1,3 @@
-"use client"
-
 import { type ChangeEvent, type FC, useEffect, useRef, useState } from "react"
 
 import { useForm } from "@tanstack/react-form"
@@ -8,8 +6,11 @@ import type { ColumnDef, SortingState, Updater } from "@tanstack/react-table"
 import { getEnumKey } from "deepsea-tools"
 import { DownloadIcon, FileSpreadsheetIcon, LoaderCircleIcon, PlusIcon, UploadIcon } from "lucide-react"
 import type { StateToQueryFnMap } from "soda-hooks"
-import { useQueryState } from "soda-next"
 import { z } from "zod"
+
+import { exportUser } from "@/apis/exportUser"
+import { getUserImportTemplate } from "@/apis/getUserImportTemplate"
+import { importUser } from "@/apis/importUser"
 
 import { BanUserEditor } from "@/components/BanUserEditor"
 import { ConfirmButton } from "@/components/ConfirmButton"
@@ -24,6 +25,7 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
 import { useDeleteUser } from "@/hooks/useDeleteUser"
+import { useQueryState } from "@/hooks/useQueryState"
 import { useQueryUser } from "@/hooks/useQueryUser"
 import { useUnbanUser } from "@/hooks/useUnbanUser"
 
@@ -42,19 +44,8 @@ import { formatDateTime } from "@/utils/formatDateTime"
 import { parseQueryDate, stringifyQueryEndDate, stringifyQueryStartDate } from "@/utils/queryDate"
 import { toast } from "@/utils/toast"
 
-interface ActionResponse<T = unknown> {
-    success: boolean
-    data?: T
-    message?: string
-}
-
 interface DownloadBlobParams {
     blob: Blob
-    filename: string
-}
-
-interface DownloadWorkbookResponseParams {
-    response: Response
     filename: string
 }
 
@@ -89,10 +80,6 @@ const filterFields = [
     { name: "phoneNumber", label: "手机号" },
 ] as const
 
-function getErrorMessage(error: unknown) {
-    return error instanceof Error ? error.message : "操作失败"
-}
-
 function downloadBlob({ blob, filename }: DownloadBlobParams) {
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
@@ -102,22 +89,6 @@ function downloadBlob({ blob, filename }: DownloadBlobParams) {
     link.click()
     link.remove()
     URL.revokeObjectURL(url)
-}
-
-async function readActionResponse<T>(response: Response) {
-    return (await response.json()) as ActionResponse<T>
-}
-
-async function downloadWorkbookResponse({ response, filename }: DownloadWorkbookResponseParams) {
-    const contentType = response.headers.get("content-type") ?? ""
-
-    if (contentType.includes("application/json")) {
-        const result = await readActionResponse(response)
-        throw new Error(result.message || "下载失败")
-    }
-
-    if (!response.ok) throw new Error("下载失败")
-    downloadBlob({ blob: await response.blob(), filename })
 }
 
 function downloadBase64Workbook({ base64, filename }: DownloadBase64WorkbookParams) {
@@ -352,23 +323,17 @@ const Page: FC = () => {
     }
 
     function getExportParams() {
-        const { pageNum, pageSize, createdAfter, createdBefore, updatedAfter, updatedBefore, ...params } = query
-        return {
-            ...params,
-            createdAfter: createdAfter?.toISOString(),
-            createdBefore: createdBefore?.toISOString(),
-            updatedAfter: updatedAfter?.toISOString(),
-            updatedBefore: updatedBefore?.toISOString(),
-        }
+        const { pageNum, pageSize, ...params } = query
+        return params
     }
 
     async function onDownloadTemplate() {
         setIsTemplateDownloading(true)
 
         try {
-            await downloadWorkbookResponse({ response: await fetch("/api/admin/user/template"), filename: "用户导入模板.xlsx" })
-        } catch (error) {
-            toast.error(getErrorMessage(error))
+            downloadBlob({ blob: await getUserImportTemplate(), filename: "用户导入模板.xlsx" })
+        } catch {
+            // 统一 RPC 客户端已处理错误提示。
         } finally {
             setIsTemplateDownloading(false)
         }
@@ -378,12 +343,9 @@ const Page: FC = () => {
         setIsExporting(true)
 
         try {
-            await downloadWorkbookResponse({
-                response: await fetch("/api/admin/user/export", { method: "POST", body: JSON.stringify(getExportParams()) }),
-                filename: "用户列表.xlsx",
-            })
-        } catch (error) {
-            toast.error(getErrorMessage(error))
+            downloadBlob({ blob: await exportUser(getExportParams()), filename: "用户列表.xlsx" })
+        } catch {
+            // 统一 RPC 客户端已处理错误提示。
         } finally {
             setIsExporting(false)
         }
@@ -397,24 +359,20 @@ const Page: FC = () => {
         setIsImporting(true)
 
         try {
-            const formData = new FormData()
-            formData.set("file", file)
-            const response = await fetch("/api/admin/user/import", { method: "POST", body: formData })
-            const result = await readActionResponse<ImportUserResult>(response)
-            if (!response.ok || !result.success) throw new Error(result.message || "批量导入失败")
+            const result: ImportUserResult = await importUser({ file })
 
             await queryClient.invalidateQueries({ queryKey: ["query-user"] })
 
-            if (result.data?.resultWorkbookBase64) {
+            if (result.resultWorkbookBase64) {
                 downloadBase64Workbook({
-                    base64: result.data.resultWorkbookBase64,
-                    filename: result.data.resultFilename || "用户导入结果.xlsx",
+                    base64: result.resultWorkbookBase64,
+                    filename: result.resultFilename || "用户导入结果.xlsx",
                 })
             }
 
-            toast.success(getImportResultMessage(result.data))
-        } catch (error) {
-            toast.error(getErrorMessage(error))
+            toast.success(getImportResultMessage(result))
+        } catch {
+            // 统一 RPC 客户端已处理错误提示。
         } finally {
             setIsImporting(false)
         }

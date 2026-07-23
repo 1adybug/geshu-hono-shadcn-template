@@ -1,9 +1,7 @@
-import { createRequestFn } from "deepsea-tools"
-
-import { updateUserAction } from "@/actions/updateUser"
+import { updateUser } from "@/apis/updateUser"
 
 import { createUseUpdateUser } from "@/presets/createUseUpdateUser"
 
-export const updateUserClient = createRequestFn(updateUserAction)
+export { updateUser }
 
-export const useUpdateUser = createUseUpdateUser(updateUserClient)
+export const useUpdateUser = createUseUpdateUser(updateUser)

@@ -1,5 +1,3 @@
-"use client"
-
 import { type FC, type ReactNode, createContext, useContext } from "react"
 
 import type { User } from "@/prisma/generated/client"

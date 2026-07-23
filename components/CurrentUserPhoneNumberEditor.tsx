@@ -1,5 +1,3 @@
-"use client"
-
 import { type FC, useEffect, useState } from "react"
 
 import { useForm } from "@tanstack/react-form"

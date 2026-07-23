@@ -1,9 +1,7 @@
-import { createRequestFn } from "deepsea-tools"
-
-import { createFirstUserAction } from "@/actions/createFirstUser"
+import { createFirstUser } from "@/apis/createFirstUser"
 
 import { createUseCreateFirstUser } from "@/presets/createUseCreateFirstUser"
 
-export const createFirstUserClient = createRequestFn(createFirstUserAction)
+export { createFirstUser }
 
-export const useCreateFirstUser = createUseCreateFirstUser(createFirstUserClient)
+export const useCreateFirstUser = createUseCreateFirstUser(createFirstUser)

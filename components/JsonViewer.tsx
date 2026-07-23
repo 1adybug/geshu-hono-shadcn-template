@@ -1,5 +1,3 @@
-"use client"
-
 import type { ComponentProps, FC } from "react"
 
 import JsonView from "@uiw/react-json-view"

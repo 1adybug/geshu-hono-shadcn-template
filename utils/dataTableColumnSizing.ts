@@ -1,6 +1,6 @@
 import type { ColumnSizingState } from "@tanstack/react-table"
 
-const DataTableColumnSizingStoragePrefix = "geshu-next-shadcn-template:data-table-column-sizing:v1"
+const DataTableColumnSizingStoragePrefix = "geshu-hono-shadcn-template:data-table-column-sizing:v1"
 
 export function getDataTableColumnSizingStorageKey(columnSizingKey: string) {
     return `${DataTableColumnSizingStoragePrefix}:${columnSizingKey}`

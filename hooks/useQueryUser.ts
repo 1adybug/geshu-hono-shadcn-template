@@ -1,11 +1,10 @@
-import { createRequestFn } from "deepsea-tools"
 import { createUseQuery } from "soda-tanstack-query"
 
-import { queryUserAction } from "@/actions/queryUser"
+import { queryUser } from "@/apis/queryUser"
 
-export const queryUserClient = createRequestFn(queryUserAction)
+export { queryUser }
 
 export const useQueryUser = createUseQuery({
-    queryFn: queryUserClient,
+    queryFn: queryUser,
     queryKey: "query-user",
 })

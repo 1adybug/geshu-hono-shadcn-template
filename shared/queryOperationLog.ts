@@ -7,16 +7,9 @@ import type { OperationLogOrderByWithRelationInput } from "@/prisma/generated/in
 
 import { defaultPageNum } from "@/schemas/pageNum"
 import { defaultPageSize } from "@/schemas/pageSize"
-import { queryOperationLogSchema } from "@/schemas/queryOperationLog"
+import type { QueryOperationLogParams } from "@/schemas/queryOperationLog"
 
-import { createSharedFn } from "@/server/createSharedFn"
-import { isAdmin } from "@/server/isAdmin"
-
-export const queryOperationLog = createSharedFn({
-    name: "queryOperationLog",
-    schema: queryOperationLogSchema,
-    filter: isAdmin,
-})(async function queryOperationLog({
+export async function queryOperationLog({
     createdBefore,
     createdAfter,
     action = "",
@@ -28,7 +21,7 @@ export const queryOperationLog = createSharedFn({
     pageSize = defaultPageSize,
     sortBy = "createdAt",
     sortOrder = "desc",
-}) {
+}: QueryOperationLogParams) {
     const where = getOperationLogWhere({
         AND: [
             ...action
@@ -101,6 +94,6 @@ export const queryOperationLog = createSharedFn({
         pageNum,
         pageSize,
     })
-})
+}
 
 export type OperationLog = Awaited<ReturnType<typeof queryOperationLog>>["list"][number]

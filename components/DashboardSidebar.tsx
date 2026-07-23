@@ -1,10 +1,7 @@
-"use client"
-
 import type { FC } from "react"
 
 import { type LucideIcon, CircleUserRoundIcon, FileClockIcon, HouseIcon, SettingsIcon, ShieldAlertIcon, UsersIcon } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { Link, useLocation } from "react-router"
 
 import {
     Sidebar,
@@ -79,7 +76,7 @@ interface SidebarNavGroupProps {
 }
 
 const SidebarNavGroup: FC<SidebarNavGroupProps> = ({ label, navs, user }) => {
-    const pathname = usePathname()
+    const { pathname } = useLocation()
     const { isMobile, setOpenMobile } = useSidebar()
     const visibleNavs = navs.filter(({ filter }) => !filter || filter(user))
 
@@ -99,7 +96,7 @@ const SidebarNavGroup: FC<SidebarNavGroupProps> = ({ label, navs, user }) => {
 
                         return (
                             <SidebarMenuItem key={href}>
-                                <SidebarMenuButton render={<Link href={href} onClick={onNavigate} />} isActive={isActive}>
+                                <SidebarMenuButton render={<Link to={href} onClick={onNavigate} />} isActive={isActive}>
                                     <Icon />
                                     <span>{name}</span>
                                 </SidebarMenuButton>
@@ -136,7 +133,7 @@ export const DashboardSidebar: FC = () => {
                     <ThemeSwitcher size="icon-sm" className="flex-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                    <Link href="/" className="bg-background hover:bg-muted inline-flex h-8 items-center justify-center gap-1.5 rounded-2xl border px-3 text-sm">
+                    <Link className="bg-background hover:bg-muted inline-flex h-8 items-center justify-center gap-1.5 rounded-2xl border px-3 text-sm" to="/">
                         <HouseIcon className="size-4" />
                         公开首页
                     </Link>

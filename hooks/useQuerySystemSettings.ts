@@ -1,11 +1,10 @@
-import { createRequestFn } from "deepsea-tools"
 import { createUseQuery } from "soda-tanstack-query"
 
-import { querySystemSettingsAction } from "@/actions/querySystemSettings"
+import { querySystemSettings } from "@/apis/querySystemSettings"
 
-export const querySystemSettingsClient = createRequestFn(querySystemSettingsAction)
+export { querySystemSettings }
 
 export const useQuerySystemSettings = createUseQuery({
-    queryFn: querySystemSettingsClient,
+    queryFn: querySystemSettings,
     queryKey: "query-system-settings",
 })

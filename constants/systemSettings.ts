@@ -267,8 +267,8 @@ export const SystemSettingDefinitions: SystemSettingDefinition[] = [
         kind: SystemSettingValueKind.文本,
         label: "S3 对象前缀",
         description: "上传到对象存储时使用的对象 key 前缀。",
-        defaultValue: "geshu-next-template",
-        placeholder: "geshu-next-template",
+        defaultValue: "geshu-hono-shadcn-template",
+        placeholder: "geshu-hono-shadcn-template",
     },
     {
         key: SystemSettingKey.自动备份S3PathStyle,

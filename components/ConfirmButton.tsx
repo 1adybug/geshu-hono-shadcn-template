@@ -1,5 +1,3 @@
-"use client"
-
 import type { ComponentProps, FC, ReactNode } from "react"
 
 import { LoaderCircleIcon } from "lucide-react"

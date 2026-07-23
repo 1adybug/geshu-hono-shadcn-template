@@ -1,6 +1,7 @@
-import { headers } from "next/headers"
+import { tryGetContext } from "hono/context-storage"
 
-export async function getUrl() {
-    const headersList = await headers()
-    return headersList.get("current-url")!
+import type { AppEnv } from "./hono"
+
+export function getUrl() {
+    return tryGetContext<AppEnv>()?.req.url
 }

@@ -1,9 +1,7 @@
-import { createRequestFn } from "deepsea-tools"
-
-import { deleteUserAction } from "@/actions/deleteUser"
+import { deleteUser } from "@/apis/deleteUser"
 
 import { createUseDeleteUser } from "@/presets/createUseDeleteUser"
 
-export const deleteUserClient = createRequestFn(deleteUserAction)
+export { deleteUser }
 
-export const useDeleteUser = createUseDeleteUser(deleteUserClient)
+export const useDeleteUser = createUseDeleteUser(deleteUser)

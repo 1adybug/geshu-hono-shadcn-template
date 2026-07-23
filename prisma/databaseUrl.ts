@@ -1,1 +1,6 @@
-export const DatabaseUrl = process.env.NODE_ENV === "development" ? "file:./data/development.db" : "file:./data/production.db"
+import { resolve } from "node:path"
+
+const databaseFileName = process.env.NODE_ENV === "development" ? "development.db" : "production.db"
+const databasePath = resolve(process.cwd(), "data", databaseFileName).replaceAll("\\", "/")
+
+export const DatabaseUrl = `file:${databasePath}`

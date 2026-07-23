@@ -8,10 +8,7 @@ import type { UserOrderByWithRelationInput } from "@/prisma/generated/internal/p
 
 import { defaultPageNum } from "@/schemas/pageNum"
 import { defaultPageSize } from "@/schemas/pageSize"
-import { type QueryUserParams, queryUserSchema } from "@/schemas/queryUser"
-
-import { createSharedFn } from "@/server/createSharedFn"
-import { isAdmin } from "@/server/isAdmin"
+import type { QueryUserParams } from "@/schemas/queryUser"
 
 export function getQueryUserWhere({
     id,
@@ -91,11 +88,7 @@ export function getQueryUserOrderBy({ sortBy = "createdAt", sortOrder = "asc" }:
     return orderBy
 }
 
-export const queryUser = createSharedFn({
-    name: "queryUser",
-    schema: queryUserSchema,
-    filter: isAdmin,
-})(async function queryUser({ pageNum = defaultPageNum, pageSize = defaultPageSize, ...params }) {
+export async function queryUser({ pageNum = defaultPageNum, pageSize = defaultPageSize, ...params }: QueryUserParams) {
     const where = getQueryUserWhere(params)
     const orderBy = getQueryUserOrderBy(params)
 
@@ -116,4 +109,4 @@ export const queryUser = createSharedFn({
         pageNum,
         pageSize,
     })
-})
+}

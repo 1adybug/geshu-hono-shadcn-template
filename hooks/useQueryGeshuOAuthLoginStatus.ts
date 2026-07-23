@@ -1,11 +1,10 @@
-import { createRequestFn } from "deepsea-tools"
 import { createUseQuery } from "soda-tanstack-query"
 
-import { queryGeshuOAuthLoginStatusAction } from "@/actions/queryGeshuOAuthLoginStatus"
+import { queryGeshuOAuthLoginStatus } from "@/apis/queryGeshuOAuthLoginStatus"
 
-export const queryGeshuOAuthLoginStatusClient = createRequestFn(queryGeshuOAuthLoginStatusAction)
+export { queryGeshuOAuthLoginStatus }
 
 export const useQueryGeshuOAuthLoginStatus = createUseQuery({
-    queryFn: queryGeshuOAuthLoginStatusClient,
+    queryFn: queryGeshuOAuthLoginStatus,
     queryKey: "query-geshu-oauth-login-status",
 })

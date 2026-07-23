@@ -1,11 +1,10 @@
-import { createRequestFn } from "deepsea-tools"
 import { createUseQuery } from "soda-tanstack-query"
 
-import { queryOperationLogAction } from "@/actions/queryOperationLog"
+import { queryOperationLog } from "@/apis/queryOperationLog"
 
-export const queryOperationLogClient = createRequestFn(queryOperationLogAction)
+export { queryOperationLog }
 
 export const useQueryOperationLog = createUseQuery({
-    queryFn: queryOperationLogClient,
+    queryFn: queryOperationLog,
     queryKey: "query-operation-log",
 })

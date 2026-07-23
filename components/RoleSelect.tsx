@@ -1,5 +1,3 @@
-"use client"
-
 import type { FC } from "react"
 
 import { useInputState } from "soda-hooks"

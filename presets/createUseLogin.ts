@@ -2,7 +2,7 @@ import { useId } from "react"
 
 import { withUseMutationDefaults } from "soda-tanstack-query"
 
-import type { login } from "@/shared/login"
+import type { login } from "@/apis/login"
 
 import { toast } from "@/utils/toast"
 

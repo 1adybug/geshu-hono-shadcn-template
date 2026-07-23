@@ -1,13 +1,14 @@
-import type { FC } from "react"
+import { type FC, Fragment } from "react"
 
-import type { Metadata } from "next"
+import notFoundImage from "@/assets/404.webp"
 
 import { ErrorPage } from "@/components/ErrorPage"
 
-export const metadata: Metadata = {
-    title: "页面未找到",
-}
-
-const NotFound: FC = () => <ErrorPage code={404} title="页面未找到" description="抱歉，你似乎来到了一片无人区..." href="/" link="回到首页" image="/404.webp" />
+const NotFound: FC = () => (
+    <Fragment>
+        <title>页面未找到 · 格数科技</title>
+        <ErrorPage code={404} title="页面未找到" description="抱歉，你似乎来到了一片无人区..." href="/" link="回到首页" image={notFoundImage} />
+    </Fragment>
+)
 
 export default NotFound

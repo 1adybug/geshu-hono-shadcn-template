@@ -1,17 +1,17 @@
-import { createRequestFn, isNonNullable } from "deepsea-tools"
+import { isNonNullable } from "deepsea-tools"
 import { createUseQuery } from "soda-tanstack-query"
 
-import { getUserAction } from "@/actions/getUser"
+import { getUser } from "@/apis/getUser"
 
 import type { UserIdParams } from "@/schemas/userId"
 
-export const getUserClient = createRequestFn(getUserAction)
+export { getUser }
 
-export function getUserClientOptional(id?: UserIdParams | undefined) {
-    return isNonNullable(id) ? getUserClient(id) : null
+export function getUserOptional(id?: UserIdParams | undefined) {
+    return isNonNullable(id) ? getUser(id) : null
 }
 
 export const useGetUser = createUseQuery({
-    queryFn: getUserClientOptional,
+    queryFn: getUserOptional,
     queryKey: "get-user",
 })

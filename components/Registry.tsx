@@ -1,5 +1,3 @@
-"use client"
-
 import type { FC, ReactNode } from "react"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -14,7 +12,7 @@ export interface RegistryProps {
     children?: ReactNode
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             retry: 0,

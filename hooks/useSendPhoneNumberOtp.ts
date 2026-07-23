@@ -1,9 +1,7 @@
-import { createRequestFn } from "deepsea-tools"
-
-import { sendPhoneNumberOtpAction } from "@/actions/sendPhoneNumberOtp"
+import { sendPhoneNumberOtp } from "@/apis/sendPhoneNumberOtp"
 
 import { createUseSendPhoneNumberOtp } from "@/presets/createUseSendPhoneNumberOtp"
 
-export const sendPhoneNumberOtpClient = createRequestFn(sendPhoneNumberOtpAction)
+export { sendPhoneNumberOtp }
 
-export const useSendPhoneNumberOtp = createUseSendPhoneNumberOtp(sendPhoneNumberOtpClient)
+export const useSendPhoneNumberOtp = createUseSendPhoneNumberOtp(sendPhoneNumberOtp)

@@ -1,39 +1,25 @@
-import { headers } from "next/headers"
-
 import { prisma } from "@/prisma"
 
-import { updateUserSchema } from "@/schemas/updateUser"
+import type { UpdateUserParams } from "@/schemas/updateUser"
 import { UserRole } from "@/schemas/userRole"
 
 import { auth } from "@/server/auth"
-import { createRateLimit } from "@/server/createRateLimit"
-import { createSharedFn } from "@/server/createSharedFn"
-import { isAdmin } from "@/server/isAdmin"
+import { getRequestHeaders } from "@/server/getRequestHeaders"
+import { badRequest } from "@/server/httpError"
 
-import { ClientError } from "@/utils/clientError"
-
-export const updateUser = createSharedFn({
-    name: "updateUser",
-    schema: updateUserSchema,
-    filter: isAdmin,
-    rateLimit: createRateLimit({
-        limit: 30,
-        windowMs: 60_000,
-        message: "更新用户操作过于频繁，请稍后再试",
-    }),
-})(async function updateUser({ id, name, nickname, phoneNumber, role }) {
+export async function updateUser({ id, name, nickname, phoneNumber, role }: UpdateUserParams) {
     const user = await prisma.user.findUnique({ where: { id } })
-    if (!user) throw new ClientError("用户不存在")
+    if (!user) throw badRequest("用户不存在")
 
     const nextPhoneNumber = phoneNumber ?? user.phoneNumber
     const nextRole = role ?? user.role
 
     const phoneNumberCount = await prisma.user.count({ where: { phoneNumber: nextPhoneNumber, id: { not: id } } })
-    if (phoneNumberCount > 0) throw new ClientError("手机号已存在")
+    if (phoneNumberCount > 0) throw badRequest("手机号已存在")
 
     if (nextRole === UserRole.用户 && user.role === UserRole.管理员) {
         const adminCount = await prisma.user.count({ where: { role: UserRole.管理员 } })
-        if (adminCount === 1) throw new ClientError("不能将最后一个管理员降级为普通用户")
+        if (adminCount === 1) throw badRequest("不能将最后一个管理员降级为普通用户")
     }
 
     try {
@@ -47,15 +33,12 @@ export const updateUser = createSharedFn({
                     role,
                 },
             },
-            headers: await headers(),
+            headers: getRequestHeaders(),
         })
 
         const user3 = await prisma.user.findUniqueOrThrow({ where: { id } })
         return user3
     } catch (error) {
-        throw new ClientError({
-            message: "更新用户失败",
-            origin: error,
-        })
+        throw badRequest("更新用户失败", error)
     }
-})
+}

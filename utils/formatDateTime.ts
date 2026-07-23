@@ -1,8 +1,6 @@
 import dayjs, { type ConfigType } from "dayjs"
-import timezone from "dayjs/plugin/timezone"
-import utc from "dayjs/plugin/utc"
-
-import { NextPublicTimeZone } from "@/constants"
+import timezone from "dayjs/plugin/timezone.js"
+import utc from "dayjs/plugin/utc.js"
 
 export const DefaultDateTimeZone = "Asia/Shanghai"
 
@@ -12,7 +10,9 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 export function getDateTimeZone() {
-    const timeZone = NextPublicTimeZone?.trim()
+    const publicTimeZone = import.meta.env?.PUBLIC_TIME_ZONE
+    const serverTimeZone = typeof process === "undefined" ? undefined : process.env.PUBLIC_TIME_ZONE
+    const timeZone = (publicTimeZone || serverTimeZone)?.trim()
 
     if (!timeZone) return DefaultDateTimeZone
 
