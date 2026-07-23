@@ -4,7 +4,7 @@ import { admin } from "better-auth/plugins"
 import { genericOAuth } from "better-auth/plugins/generic-oauth"
 import { phoneNumber } from "better-auth/plugins/phone-number"
 
-import { BetterAuthSecret, BetterAuthUrl, CookiePrefix, GeshuOAuthProviderId, IsDevelopment } from "@/constants"
+import { GeshuOAuthProviderId } from "@/constants"
 import { SystemSettingKey } from "@/constants/systemSettings"
 
 import { prisma } from "@/prisma"
@@ -12,6 +12,7 @@ import { prisma } from "@/prisma"
 import { phoneNumberRegex } from "@/schemas/phoneNumber"
 
 import { setDevOtp } from "@/server/devOtpStore"
+import { BetterAuthSecret, BetterAuthUrl, CookiePrefix, IsDevelopment } from "@/server/env"
 import { getGeshuOAuthConfig } from "@/server/geshuOAuth"
 import { getTempEmail } from "@/server/getTempEmail"
 import { getDevelopmentClientUrl, getDevelopmentServerUrl } from "@/server/port"

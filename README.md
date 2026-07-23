@@ -76,7 +76,7 @@ pnpm exec sdrr build
 3. `apis/<name>.ts`：基于 Hono RPC 的同名浏览器函数；
 4. 需要时在 `hooks` 中通过 TanStack Query 使用 API 函数。
 
-三层文件名必须严格 1:1，使用 `pnpm run check:layers` 检查。Better Auth、健康检查和生产静态资源服务属于基础设施，保留在 `server/app.ts`。
+三层文件名必须严格 1:1，使用 `pnpm run check:layers` 检查。该命令也会检查客户端代码边界：允许通过 `import type` 复用服务端类型，但禁止运行时导入 `server`、`shared`、`routes` 或 `prisma`，并禁止读取非 `PUBLIC_` 私有环境变量。Better Auth、健康检查和生产静态资源服务属于基础设施，保留在 `server/app.ts`。
 
 普通 JSON 动作使用显式 `/api/action/<name>` 路由；文件流和表单同样保留对应的三层文件，并在各自 `routes` 文件内声明特殊 HTTP 语义。
 
@@ -85,7 +85,7 @@ pnpm exec sdrr build
 ```bash
 pnpm run dev          # 同时启动 Hono 与 Rsbuild
 pnpm run typecheck    # TypeScript 检查
-pnpm run check:layers # 检查 shared/routes/apis 文件对应关系
+pnpm run check:layers # 检查三层文件对应关系和客户端代码边界
 pnpm run check:hono   # 验证 Hono 状态码、CSRF、RPC 下载与生产静态能力
 pnpm run lint         # ESLint
 pnpm run format       # Prettier
@@ -115,7 +115,7 @@ pnpm run db:prod      # 应用生产数据库迁移
 - `PORT` / `HOSTNAME`：生产 Hono 监听端口和地址，默认 `3000` / `0.0.0.0`；
 - `TRUSTED_CLIENT_IP_HEADER`：可信反向代理提供客户端 IP 的请求头；留空时使用连接远端地址。
 
-只有 `PUBLIC_` 前缀变量可以进入浏览器构建产物，敏感配置不得使用该前缀。
+只有 `PUBLIC_` 前缀变量可以进入浏览器构建产物，敏感配置不得使用该前缀。服务端环境变量统一从 `server/env.ts` 导出，不要放入客户端可导入的 `constants` 或 `utils`。
 
 ## Docker
 

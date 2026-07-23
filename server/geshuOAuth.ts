@@ -2,12 +2,13 @@ import { createHash } from "node:crypto"
 
 import type { GenericOAuthConfig } from "better-auth/plugins/generic-oauth"
 
-import { GeshuOAuthProviderId, IsDevelopment } from "@/constants"
+import { GeshuOAuthProviderId } from "@/constants"
 
 import { prisma } from "@/prisma"
 
 import { phoneNumberRegex } from "@/schemas/phoneNumber"
 
+import { IsDevelopment } from "@/server/env"
 import { getDefaultEmailDomain } from "@/server/getTempEmail"
 import { getDevelopmentServerUrl } from "@/server/port"
 
