@@ -7,7 +7,7 @@
     "scripts": {
         "dev": "concurrently -k \"pnpm run dev:server\" \"pnpm run dev:client\"",
         "dev:client": "rsbuild dev",
-        "dev:server": "cross-env NODE_ENV=development tsx watch --env-file-if-exists=.env server/index.ts",
+        "dev:server": "cross-env NODE_ENV=development RSBUILD_RUN_SERVER=true rsbuild build --watch --mode development --config rsbuild.server.config.ts",
         "build": "pnpm run build:client && pnpm run build:server",
         "build:client": "rsbuild build",
         "build:server": "rsbuild build --config rsbuild.server.config.ts",

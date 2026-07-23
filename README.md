@@ -43,6 +43,8 @@ pnpm run dev
 - Rsbuild SPA：`http://localhost:<CLIENT_PORT>`，默认 `http://localhost:5173`
 - Hono API：`http://localhost:<SERVER_PORT>`，默认 `http://localhost:3000`
 
+开发环境由 Rsbuild 监听并构建 Hono 服务端代码，Node.js 24 通过 `--watch` 运行构建产物；源文件变化后会自动重新构建并重启服务端。
+
 Rsbuild 会把 `/api` 代理到当前 `SERVER_PORT`。两个端口都会去除首尾空白并校验为 `1` 到 `65535` 之间的整数；端口无效时会直接给出配置错误，`CLIENT_PORT` 被占用时也不会自动漂移到其他端口。
 
 PowerShell 中可这样指定开发端口：
