@@ -121,8 +121,8 @@ const Page: FC = () => {
         try {
             const response = await authClient.signIn.oauth2({
                 providerId: GeshuOAuthProviderId,
-                callbackURL: "/",
-                errorCallbackURL: "/login",
+                callbackURL: window.location.origin,
+                errorCallbackURL: `${window.location.origin}/login`,
             })
 
             if (response.error) throw new Error(response.error.message || "账号平台登录失败")

@@ -30,7 +30,7 @@ template  no_push://template (push)
 
 ## 本地开发
 
-复制 `.env.example` 为 `.env`，至少修改 `BETTER_AUTH_SECRET`，然后执行：
+复制 `.env.example` 为 `.env`，至少修改 `BETTER_AUTH_SECRET`，然后执行。Rsbuild 与 Hono 开发进程都会读取该文件：
 
 ```bash
 pnpm install
@@ -40,10 +40,20 @@ pnpm run dev
 
 `pnpm run dev` 会同时启动：
 
-- Rsbuild SPA：`http://localhost:5173`
-- Hono API：`http://localhost:3000`
+- Rsbuild SPA：`http://localhost:<CLIENT_PORT>`，默认 `http://localhost:5173`
+- Hono API：`http://localhost:<SERVER_PORT>`，默认 `http://localhost:3000`
 
-开发服务器会把 `/api` 代理到 Hono。
+Rsbuild 会把 `/api` 代理到当前 `SERVER_PORT`。两个端口都会去除首尾空白并校验为 `1` 到 `65535` 之间的整数；端口无效时会直接给出配置错误，`CLIENT_PORT` 被占用时也不会自动漂移到其他端口。
+
+PowerShell 中可这样指定开发端口：
+
+```powershell
+$env:SERVER_PORT = "3100"
+$env:CLIENT_PORT = "5200"
+pnpm run dev
+```
+
+开发环境的 Better Auth 服务端地址和 OAuth discovery 兜底地址自动使用 `http://localhost:<SERVER_PORT>`。浏览器仍从 Rsbuild 当前站点访问 `/api`，OAuth 完成后返回当前客户端地址；生产环境继续使用显式域名配置。
 
 ## 路由
 
@@ -96,11 +106,13 @@ pnpm run db:prod      # 应用生产数据库迁移
 完整示例见 `.env.example`。其中：
 
 - `BETTER_AUTH_SECRET`：生产环境必填；
-- `BETTER_AUTH_URL`：Hono/Better Auth 的公开服务地址；
-- `PUBLIC_BETTER_AUTH_URL`：可暴露给浏览器的认证地址，留空时使用当前站点；
+- `BETTER_AUTH_URL`：生产环境 Hono/Better Auth 的公开服务地址；
+- `PUBLIC_BETTER_AUTH_URL`：生产环境可暴露给浏览器的认证地址，留空时使用当前站点；
 - `PUBLIC_TIME_ZONE`：浏览器展示时区，默认 `Asia/Shanghai`；
 - `DEFAULT_EMAIL_DOMAIN`：手机号账号生成临时邮箱时使用的域名；
-- `PORT` / `HOSTNAME`：Hono 监听端口和地址，默认 `3000` / `0.0.0.0`。
+- `SERVER_PORT`：本地开发 Hono 监听端口，默认 `3000`；
+- `CLIENT_PORT`：本地开发 Rsbuild 监听端口，默认 `5173`；
+- `PORT` / `HOSTNAME`：生产 Hono 监听端口和地址，默认 `3000` / `0.0.0.0`；
 - `TRUSTED_CLIENT_IP_HEADER`：可信反向代理提供客户端 IP 的请求头；留空时使用连接远端地址。
 
 只有 `PUBLIC_` 前缀变量可以进入浏览器构建产物，敏感配置不得使用该前缀。

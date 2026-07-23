@@ -4,6 +4,11 @@ import { pluginSvgr } from "@rsbuild/plugin-svgr"
 import { pluginTailwindcss } from "@rsbuild/plugin-tailwindcss"
 import { sdrrRsbuildPlugin } from "sdrr/rsbuild"
 
+import { getDevelopmentClientPort, getDevelopmentServerPort } from "./server/port"
+
+const clientPort = getDevelopmentClientPort()
+const serverPort = getDevelopmentServerPort()
+
 export default defineConfig({
     source: {
         entry: {
@@ -27,10 +32,11 @@ export default defineConfig({
         sdrrRsbuildPlugin(),
     ],
     server: {
-        port: 5173,
+        port: clientPort,
+        strictPort: true,
         proxy: {
             "/api": {
-                target: "http://127.0.0.1:3000",
+                target: `http://127.0.0.1:${serverPort}`,
             },
         },
         historyApiFallback: true,

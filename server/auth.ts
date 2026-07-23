@@ -14,6 +14,7 @@ import { phoneNumberRegex } from "@/schemas/phoneNumber"
 import { setDevOtp } from "@/server/devOtpStore"
 import { getGeshuOAuthConfig } from "@/server/geshuOAuth"
 import { getTempEmail } from "@/server/getTempEmail"
+import { getDevelopmentClientUrl, getDevelopmentServerUrl } from "@/server/port"
 import { getCachedSystemSettingValue, normalizeBooleanValue } from "@/server/systemSettings"
 
 import { sendOtp } from "./sendOtp"
@@ -26,9 +27,10 @@ export interface PrintAuthOtpParams {
 }
 
 function getAuthBaseUrl() {
+    if (IsDevelopment) return getDevelopmentServerUrl()
+
     const baseUrl = BetterAuthUrl?.trim()
     if (baseUrl) return baseUrl
-    if (IsDevelopment) return "http://localhost:5173"
     return undefined
 }
 
@@ -57,10 +59,12 @@ function printAuthOtp({ phoneNumber, code }: PrintAuthOtpParams) {
 const authBaseUrl = getAuthBaseUrl()
 const authSecret = getAuthSecret()
 const geshuOAuthConfig = getGeshuOAuthConfig()
+const trustedOrigins = IsDevelopment ? [getDevelopmentClientUrl()] : undefined
 
 export const auth = betterAuth({
     secret: authSecret,
     ...(authBaseUrl ? { baseURL: authBaseUrl } : {}),
+    ...(trustedOrigins ? { trustedOrigins } : {}),
     database: prismaAdapter(prisma, { provider: "sqlite" }),
     user: {
         additionalFields: {

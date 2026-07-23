@@ -9,6 +9,7 @@ import { prisma } from "@/prisma"
 import { phoneNumberRegex } from "@/schemas/phoneNumber"
 
 import { getDefaultEmailDomain } from "@/server/getTempEmail"
+import { getDevelopmentServerUrl } from "@/server/port"
 
 import { getBooleanFromEnv } from "@/utils/getBooleanFromEnv"
 
@@ -57,7 +58,7 @@ function getBooleanEnv(name: string, defaultValue: boolean) {
 function getConfiguredIssuer() {
     const issuer = getEnv("GESHU_OAUTH_ISSUER")
     if (issuer) return issuer.replace(/\/$/, "")
-    if (IsDevelopment) return "http://localhost:3000/api/auth"
+    if (IsDevelopment) return `${getDevelopmentServerUrl()}/api/auth`
     return undefined
 }
 

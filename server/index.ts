@@ -2,10 +2,11 @@ import { serve } from "@hono/node-server"
 
 import { app } from "@/server/app"
 import { startAutoBackupScheduler, stopAutoBackupScheduler } from "@/server/autoBackup"
+import { getRuntimeServerPort } from "@/server/port"
 
 void startAutoBackupScheduler().catch(error => void console.error("启动自动备份任务失败", error))
 
-const port = Number(process.env.PORT || 3000)
+const port = getRuntimeServerPort()
 
 const server = serve({
     fetch: app.fetch,
