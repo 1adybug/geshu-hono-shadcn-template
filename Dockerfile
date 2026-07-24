@@ -4,15 +4,14 @@ FROM node:lts-slim AS base
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends -o Acquire::Retries=3 openssl \
-    && npm install --global pnpm@11.10.0 \
     && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json ./
+RUN npm install
 
 FROM base AS builder
 
@@ -21,15 +20,15 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN pnpm exec prisma generate
+RUN npx prisma generate
 RUN BETTER_AUTH_SECRET=docker-build-only-secret-not-for-runtime \
     BETTER_AUTH_URL=http://example.com \
     DEFAULT_EMAIL_DOMAIN=example.com \
-    pnpm run build
+    sh -c 'npm run build:client && npm run build:server'
 
 FROM deps AS production-deps
 
-RUN pnpm prune --prod --ignore-scripts
+RUN npm prune --omit=dev --ignore-scripts
 
 FROM node:lts-slim AS runner
 
