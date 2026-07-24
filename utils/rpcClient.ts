@@ -4,6 +4,7 @@ import type { AppType } from "@/server/app"
 
 import type { ApiErrorResponse, ApiSuccessResponse } from "@/types/api"
 
+import { type SerializedApiData, deserializeApiData } from "./apiSerialization"
 import { toast } from "./toast"
 
 export const rpcClient = hc<AppType>("/", {
@@ -22,22 +23,6 @@ function isApiSuccessResponse(value: unknown): value is ApiSuccessResponse<unkno
     if (!value || typeof value !== "object") return false
     const response = value as Partial<ApiSuccessResponse<unknown>>
     return response.success === true && response.code === 200 && "data" in response
-}
-
-const dateFieldNames = new Set(["createdAt", "updatedAt", "expiresAt", "banExpires", "accessTokenExpiresAt", "refreshTokenExpiresAt"])
-
-function reviveDateFields(value: unknown, key?: string): unknown {
-    if (typeof value === "string" && key && dateFieldNames.has(key)) {
-        const date = new Date(value)
-        if (!Number.isNaN(date.getTime())) return date
-    }
-
-    if (Array.isArray(value)) return value.map(item => reviveDateFields(item))
-
-    if (value && typeof value === "object")
-        return Object.fromEntries(Object.entries(value).map(([entryKey, entryValue]) => [entryKey, reviveDateFields(entryValue, entryKey)]))
-
-    return value
 }
 
 function getRequestError(error: unknown) {
@@ -59,7 +44,7 @@ export async function parseApiResponse<TData>(response: Promise<ClientResponse<u
     try {
         const result = await parseResponse(response)
         if (!isApiSuccessResponse(result)) throw new Error("响应内容无效")
-        return reviveDateFields(result.data) as TData
+        return deserializeApiData(result.data as SerializedApiData<TData>)
     } catch (error) {
         throw getRequestError(error)
     }

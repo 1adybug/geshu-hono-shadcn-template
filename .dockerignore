@@ -41,7 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 package-lock.json
-pnpm-lock.yaml
 node_modules
 bun.lockb
 bun.lock

@@ -21,23 +21,22 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG BETTER_AUTH_SECRET=docker-build-only-secret-not-for-runtime
-ARG BETTER_AUTH_URL=http://example.com
-ARG DEFAULT_EMAIL_DOMAIN=example.com
-
 RUN pnpm exec prisma generate
-RUN pnpm run build
+RUN BETTER_AUTH_SECRET=docker-build-only-secret-not-for-runtime \
+    BETTER_AUTH_URL=http://example.com \
+    DEFAULT_EMAIL_DOMAIN=example.com \
+    pnpm run build
 
 FROM deps AS production-deps
 
-RUN pnpm prune --prod
+RUN pnpm prune --prod --ignore-scripts
 
-FROM base AS runner
+FROM node:lts-slim AS runner
 
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends -o Acquire::Retries=3 gosu \
+    && apt-get install -y --no-install-recommends -o Acquire::Retries=3 gosu openssl \
     && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
@@ -52,14 +51,11 @@ COPY --from=builder --chown=hono:nodejs /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/scripts ./scripts
-COPY --from=deps /app/node_modules/prisma/package.json ./prisma-package.json
 
-RUN npm install --global "prisma@$(node -p "require('./prisma-package.json').version")" \
-    && rm ./prisma-package.json \
-    && mkdir -p /app/data \
+RUN mkdir -p /app/data \
     && chown -R hono:nodejs /app/data
 
-RUN printf '#!/bin/sh\nset -e\nmkdir -p /app/data\nchown -R hono:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nnode scripts/ensureDatabaseFile.mjs\nprisma migrate deploy\nchown -R hono:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nexec gosu hono node dist/server/index.mjs\n' > /app/entrypoint.sh \
+RUN printf '#!/bin/sh\nset -e\nmkdir -p /app/data\nchown -R hono:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nnode scripts/ensureDatabaseFile.mjs\n./node_modules/.bin/prisma migrate deploy\nchown -R hono:nodejs /app/data\nchmod -R u+rwX,g+rwX /app/data\nexec gosu hono node dist/server/index.mjs\n' > /app/entrypoint.sh \
     && chmod +x /app/entrypoint.sh
 
 EXPOSE 3000

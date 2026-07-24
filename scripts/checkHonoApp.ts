@@ -12,14 +12,22 @@ import type { PrismaClient } from "@/prisma/generated/client"
 
 import { toResponseBody } from "@/server/toResponseBody"
 
+import { deserializeApiData, serializeApiData } from "@/utils/apiSerialization"
+
 interface ApiEnvelope {
     success: boolean
     code: number
     data?: unknown
 }
 
+interface SerializedDateValue {
+    $geshu: "date"
+    value: string
+}
+
 interface UserIdentifier {
     id: string
+    createdAt: SerializedDateValue
 }
 
 interface CurrentUserEnvelopeData {
@@ -64,6 +72,24 @@ try {
     const healthResponse = await app.request("/api/health")
     assert.equal(healthResponse.status, 200)
     assert.deepEqual(await healthResponse.json(), { success: true, data: { status: "ok" }, code: 200 })
+
+    const serializationDate = new Date("2026-07-24T00:00:00.000Z")
+
+    const serializationValue = {
+        count: 9_007_199_254_740_993n,
+        items: [{ occurredAt: serializationDate }],
+    }
+
+    const serializedValue = serializeApiData(serializationValue)
+
+    assert.deepEqual(serializedValue, {
+        count: { $geshu: "bigint", value: "9007199254740993" },
+        items: [{ occurredAt: { $geshu: "date", value: "2026-07-24T00:00:00.000Z" } }],
+    })
+
+    assert.deepEqual(deserializeApiData(serializedValue), serializationValue)
+    assert.throws(() => serializeApiData({ $geshu: "业务数据" }), /不能占用/)
+    assert.throws(() => deserializeApiData({ $geshu: "number", value: "1" } as never), /序列化类型无效/)
 
     const notFoundResponse = await app.request("/missing")
     assert.equal(notFoundResponse.status, 404)
@@ -129,6 +155,8 @@ try {
     const createEnvelope = await readEnvelope(createResponse)
     assert.equal(createEnvelope.success, true)
     const createdUser = createEnvelope.data as UserIdentifier
+    assert.equal(createdUser.createdAt.$geshu, "date")
+    assert.equal(new Date(createdUser.createdAt.value).toISOString(), createdUser.createdAt.value)
 
     const loginResponse = await app.request("/api/login", {
         method: "POST",

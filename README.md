@@ -80,6 +80,8 @@ pnpm exec sdrr build
 
 三层文件名必须严格 1:1，使用 `pnpm run check:layers` 检查。该命令也会检查客户端代码边界：允许通过 `import type` 复用服务端类型，但禁止运行时导入 `server`、`shared`、`routes` 或 `prisma`，并禁止读取非 `PUBLIC_` 私有环境变量。Better Auth、健康检查和生产静态资源服务属于基础设施，保留在 `server/app.ts`。
 
+JSON 接口通过统一编解码契约传输 `Date` 与 `BigInt`：服务端分别编码为带 `$geshu: "date"` 或 `$geshu: "bigint"` 标记的对象，浏览器 API 层再还原为原始类型。业务响应对象不得占用 `$geshu` 字段，也不得包含无效日期、非有限数字、循环引用或其他类实例。
+
 项目自定义接口统一使用 `/api/<kebab-case>` 路由，路径名称由同名能力转换而来，例如 `createFirstUser` 对应
 `/api/create-first-user`。文件流和表单同样保留对应的三层文件，并在各自 `routes` 文件内声明特殊 HTTP 语义。Better Auth
 继续使用其协议约定的 `/api/auth/*` 路由。
